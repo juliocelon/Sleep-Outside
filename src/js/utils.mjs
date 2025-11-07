@@ -27,3 +27,16 @@ export function getParam(param) {
   const urlParams = new URLSearchParams(queryString);
   return urlParams.get('product');
 }
+
+//Create a function that will be able to work with multiple products to create product cards
+export function renderListWithTemplate(templateFn, parentElement, list, position='afterbegin', clear='false') {
+  //If clear is true, remove existing content before building new product cards
+  if (clear) {
+    parentElement.innerHTML = '';
+  }  
+
+  //Create an array of product cards for each item in the list
+  const htmlStrings = list.map(templateFn);
+  //Join the items in the list together and insert into the parent element 
+  parentElement.insertAdjacentHTML(position, htmlStrings.join('')); //join prevents commas between each list item (<li></li>)  
+}
