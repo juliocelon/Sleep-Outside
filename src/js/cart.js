@@ -8,7 +8,7 @@ function renderCartContents() {
     document.querySelector(".product-list").innerHTML = `
       <li class="empty-cart">
         <p>Your cart is empty</p>
-        <a href="/src/index.html">Continue Shopping</a>
+        <a href="../">Continue Shopping</a>
       </li>
     `;
     // Clear any existing totals
@@ -37,7 +37,7 @@ function cartItemTemplate(item) {
   const newItem = `<li class="cart-card divider">
     <a href="#" class="cart-card__image">
       <img
-        src="${item.Image.replace("../", "/src/")}"
+        src="${item.Image}"
         alt="${item.Name}"
       />
     </a>
