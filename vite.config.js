@@ -2,9 +2,9 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: './',
+  base: '/Sleep-Outside/',
   root: "src/",
-  publicDir: "public",
+  publicDir: "../public",
   build: {
     outDir: "../dist",
     emptyOutDir: true,
@@ -16,6 +16,8 @@ export default defineConfig({
         product: resolve(__dirname, "src/product_pages/index.html"),
       },
     },
+    // Preserve original asset paths
+    assetsInclude: ['**/*.jpg', '**/*.png', '**/*.svg'],
   },
   server: {
     open: true,

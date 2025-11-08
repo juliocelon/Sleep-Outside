@@ -10,7 +10,7 @@ export default class ProductData {
   constructor(category) {
     this.category = category;
     // Use the path that actually works
-    this.path = `../json/${this.category}.json`;
+    this.path = `../public/json/${this.category}.json`;
   }
   
   getData() {

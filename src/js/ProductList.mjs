@@ -1,5 +1,13 @@
 import { renderListWithTemplate } from './utils.mjs';
 
+// Add base path detection
+function getBasePath() {
+  if (window.location.hostname.includes('github.io')) {
+    return '/Sleep-Outside/';
+  }
+  return './';
+}
+
 export default class ProductList {
   constructor(category, dataSource, listElement) {
     this.category = category;
@@ -25,11 +33,13 @@ export default class ProductList {
 }
 
 function productCardTemplate(product) {
+  const basePath = getBasePath();
+  
   return `
     <li class="product-card">
       <a href="${basePath}product_pages/?product=${product.Id}">
         <img
-          src="${product.Image.replace('../', '')}"
+          src="${product.Image}"
           alt="${product.NameWithoutBrand}"
         />
         <h3 class="card__brand">${product.Brand.Name}</h3>
