@@ -11,6 +11,9 @@ function renderCartContents() {
         <a href="/src/index.html">Continue Shopping</a>
       </li>
     `;
+    // Clear any existing totals
+    const existingTotals = document.querySelector(".cart-totals");
+    if (existingTotals) existingTotals.remove();
     return;
   }
 
@@ -22,6 +25,9 @@ function renderCartContents() {
 
   // Add event listeners to remove buttons and quantity controls
   addCartListeners();
+  
+  // Render cart totals
+  renderCartTotals();
 }
 
 function cartItemTemplate(item) {
@@ -49,6 +55,75 @@ function cartItemTemplate(item) {
   </li>`;
 
   return newItem;
+}
+
+function calculateCartTotals() {
+  const cartItems = getLocalStorage("so-cart") || [];
+  const itemsArray = Array.isArray(cartItems) ? cartItems : [cartItems];
+  
+  const subtotal = itemsArray.reduce((total, item) => {
+    const quantity = item.quantity || 1;
+    return total + (item.FinalPrice * quantity);
+  }, 0);
+  
+  const taxRate = 0.08; // 8% tax
+  const tax = subtotal * taxRate;
+  const shipping = subtotal > 0 ? 5.99 : 0; // $5.99 shipping
+  const grandTotal = subtotal + tax + shipping;
+  
+  return {
+    subtotal: subtotal.toFixed(2),
+    tax: tax.toFixed(2),
+    shipping: shipping.toFixed(2),
+    grandTotal: grandTotal.toFixed(2)
+  };
+}
+
+function renderCartTotals() {
+  const totals = calculateCartTotals();
+  const totalsHTML = `
+    <div class="cart-totals divider">
+      <div class="total-row">
+        <span>Subtotal:</span>
+        <span>$${totals.subtotal}</span>
+      </div>
+      <div class="total-row">
+        <span>Tax:</span>
+        <span>$${totals.tax}</span>
+      </div>
+      <div class="total-row">
+        <span>Shipping:</span>
+        <span>$${totals.shipping}</span>
+      </div>
+      <div class="total-row grand-total">
+        <span>Total:</span>
+        <span>$${totals.grandTotal}</span>
+      </div>
+      <button class="checkout-btn">Proceed to Checkout</button>
+    </div>
+  `;
+  
+  // Remove existing totals if any
+  const existingTotals = document.querySelector(".cart-totals");
+  if (existingTotals) {
+    existingTotals.remove();
+  }
+  
+  // Insert after product list
+  const productList = document.querySelector(".product-list");
+  productList.insertAdjacentHTML("afterend", totalsHTML);
+  
+  // Add checkout button listener
+  addCheckoutListener();
+}
+
+function addCheckoutListener() {
+  const checkoutBtn = document.querySelector(".checkout-btn");
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener("click", function() {
+      window.location.href = "../checkout/index.html";
+    });
+  }
 }
 
 function addCartListeners() {
@@ -102,7 +177,7 @@ function updateQuantity(productId, change) {
 
     // Save updated cart
     setLocalStorage("so-cart", cart);
-    renderCartContents(); // Re-render the cart
+    renderCartContents(); // Re-render the cart (includes totals)
   }
 }
 
