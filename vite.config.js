@@ -2,7 +2,7 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  base: '/Sleep-Outside/',
+  base: process.env.NODE_ENV === 'production' ? '/Sleep-Outside/' : '/',
   root: "src/",
   publicDir: "../public",
   build: {
@@ -16,7 +16,6 @@ export default defineConfig({
         product: resolve(__dirname, "src/product_pages/index.html"),
       },
     },
-    // Preserve original asset paths
     assetsInclude: ['**/*.jpg', '**/*.png', '**/*.svg'],
   },
   server: {
