@@ -24,6 +24,9 @@ export default class ProductDetails {
         const cartItems = getLocalStorage("so-cart") || [];
         cartItems.push(this.product);
         setLocalStorage("so-cart", cartItems);
+
+        //Refresh the page so the superscript on the cart icon will update
+        location.reload();
     }
 
     renderProductDetails() {

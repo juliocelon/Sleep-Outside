@@ -241,6 +241,37 @@ button {
   grid-column: 3;
 }
 
+/* Superscript on Cart Icon and Cart Total */
+.hide {
+  display: none;
+}
+
+/* Superscript on Cart Icon */
+.superscript {
+  color: white;
+  background: orange;
+  border-radius: 50%;
+  width: 1.4rem;
+  height: 1.4rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-decoration: none;
+  position: absolute; /*puts the superscript to the right of the svg */
+  top: 0;
+  right: -5px;
+}
+
+.superscript:empty {
+  display: none;
+}
+
+
+/* Cart Total */
+.cart-total {
+  text-align: right;
+}
+
 @media screen and (min-width: 500px) {
   body {
     max-width: 1080px;
