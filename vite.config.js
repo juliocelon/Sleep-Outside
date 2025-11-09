@@ -4,10 +4,11 @@ import { defineConfig } from "vite";
 export default defineConfig({
   base: process.env.NODE_ENV === 'production' ? '/Sleep-Outside/' : '/',
   root: "src/",
-  publicDir: "../public",
+  publicDir: "src/public",
   build: {
-    outDir: "../dist",
+    outDir: "../docs",
     emptyOutDir: true,
+    copyPublicDir: true,
     rollupOptions: {
       input: {
         main: resolve(__dirname, "src/index.html"),
@@ -16,7 +17,7 @@ export default defineConfig({
         product: resolve(__dirname, "src/product_pages/index.html"),
       },
     },
-    assetsInclude: ['**/*.jpg', '**/*.png', '**/*.svg'],
+    assetsInclude: ['**/*.jpg', '**/*.png', '**/*.svg', '**/*.json'],
   },
   server: {
     open: true,
