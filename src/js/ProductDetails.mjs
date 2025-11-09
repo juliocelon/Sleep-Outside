@@ -1,19 +1,14 @@
 import { setLocalStorage, getLocalStorage, getCartCount } from './utils.mjs';
 
-// ADD THIS FUNCTION (same as in ProductList.mjs)
+// Image path fixing function
 function fixImagePath(imagePath) {
-  console.log('🔧 ProductDetails - fixImagePath called with:', imagePath);
-  console.log('🔧 ProductDetails - Current URL:', window.location.href);
-  
   // Check if we're in production preview (has /Sleep-Outside/ in path)
   const isProductionPreview = window.location.href.includes('/Sleep-Outside/');
   const isGitHubPages = window.location.hostname.includes('github.io');
   
   if (!isProductionPreview && !isGitHubPages) {
-    console.log('🔧 ProductDetails - Development mode - using original path');
     return imagePath;
   } else {
-    console.log('🔧 ProductDetails - Production mode detected');
     // Map original filenames to their hashed versions
     const imageMap = {
       'marmot-ajax-tent-3-person-3-season-in-pale-pumpkin-terracotta~p~880rr_01~320.jpg': 'marmot-ajax-tent-3-person-3-season-in-pale-pumpkin-terracotta~p~880rr_01~320-CwrOuOqG.jpg',
@@ -91,8 +86,6 @@ export default class ProductDetails {
   renderProductDetails() {
     // Use the proper fixImagePath function
     const imagePath = fixImagePath(this.product.Image);
-    console.log('🖼️ ProductDetails - Original image:', this.product.Image);
-    console.log('🖼️ ProductDetails - Fixed image path:', imagePath);
   
     document.querySelector('title').textContent = `SleepOutside | ${this.product.Name}`;
     
@@ -102,10 +95,8 @@ export default class ProductDetails {
         <h2 class="divider">${this.product.NameWithoutBrand}</h2>
         <img
           class="divider"
-          src="${imagePath}"  <!-- Use the fixed image path -->
+          src="${imagePath}"
           alt="${this.product.NameWithoutBrand}"
-          onload="console.log('✅ Product image loaded successfully:', this.src)"
-          onerror="console.log('❌ Product image failed to load:', this.src)"
         />
         <p class="product-card__price">$${this.product.FinalPrice}</p>
         <p class="product__color">${this.product.Colors[0].ColorName}</p>
