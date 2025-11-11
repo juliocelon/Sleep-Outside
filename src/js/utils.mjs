@@ -40,3 +40,18 @@ export function renderListWithTemplate(templateFn, parentElement, list, position
   //Join the items in the list together and insert into the parent element 
   parentElement.insertAdjacentHTML(position, htmlStrings.join('')); //join prevents commas between each list item (<li></li>)  
 }
+
+function discount(product) {
+    if ( product.FinalPrice < product.SuggestedRetailPrice) {
+        return Math.round(((product.SuggestedRetailPrice - product.FinalPrice)/product.SuggestedRetailPrice)*100);
+    }
+    return;
+}
+
+export function discountIndicator(product) {
+    const discountValue = discount(product);
+    if (discountValue) {
+        return `<p class="discount-indicator highlight">-${discountValue}% Off!</p>`;
+    }
+    return;
+}
