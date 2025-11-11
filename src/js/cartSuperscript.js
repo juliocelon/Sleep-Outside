@@ -7,7 +7,7 @@ function cartSuperscript() {
     const numberItemsInCart = cartItems.length;
 
     //Check to see if anything is in the cart
-    if (numberItemsInCart > 0) {
+    if (numberItemsInCart) { //means if value is NOT falsy (or in other words, is not false, null, 0, etc.)
         //Pull the superscript element from all the index.html's and remove the class list 'hide' so it will show
         const superscript = document.querySelector('.superscript');
         superscript.classList.remove('hide');
