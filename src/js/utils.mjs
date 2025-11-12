@@ -41,32 +41,54 @@ export function renderListWithTemplate(templateFn, parentElement, list, position
   parentElement.insertAdjacentHTML(position, htmlStrings.join('')); //join prevents commas between each list item (<li></li>)  
 }
 
-export function renderWithTemplate(template, parentElement, data, callback) {
-  
+//Function to create the header and footer for each webpage
+export function renderWithTemplate(template, parentElement, callback) {
+  //Check if there is a callback function (in this case cartSuperscript)
   parentElement.innerHTML = template;
   if(callback) {
-    callback(data);
+    callback(); //the way the cartSuperscript function is set up we don't need data entered
   }
 }
 
+//Function to create a superscript on the cart in the header
+function cartSuperscript() {
+  //Pull items in cart from local storage
+  const cartItems = getLocalStorage('so-cart');
+
+  //Count the number of items in the cart
+  let numberItemsInCart;
+  if (cartItems) { 
+    numberItemsInCart = cartItems.length;
+  } else {
+    numberItemsInCart = 0
+  }
+
+  //Hide the superscript if nothing is in the cart, otherwise show
+  if (numberItemsInCart > 0) { //means if value is NOT falsy (or in other words, is not false, null, 0, etc.)
+    //Pull the superscript element from all the index.html's and remove the class list 'hide' so it will show
+    const superscript = document.querySelector('.superscript');
+    superscript.classList.remove('hide');
+    //Count the number of items in the cart and add it as a superscript on the cart icon    
+    superscript.textContent = `${numberItemsInCart}`;
+  }
+}
+
+//Function to call templates
 export async function loadTemplate (path) {
   const response = await fetch(path); 
   const template = await response.text(); 
   return template;
 }
 
+//Function to load headers and footers
 export async function loadHeaderFooter() {
-  
-  const headerTemplate = await loadTemplate("../partials/header.html");
+  //Load and publish header
+  const headerTemplate = await loadTemplate("/partials/header.html"); //just start with /partials rather than ../partials because it's in the public folder so it will run as if fromt he root of the website
+  const headerElement = document.querySelector(".header"); //use class rather than id so it can be applied to all webpages
+  renderWithTemplate(headerTemplate, headerElement, cartSuperscript);
 
-  const headerElement = document.querySelector("#main-header");
-
-  renderWithTemplate(headerTemplate, headerElement);
-
-  const footerTemplate = await loadTemplate("../partials/footer.html");
-
-  const footerElement = document.querySelector("#main-footer");
-
-  renderWithTemplate(footerTemplate, footerElement);
-
+  //Load and publish footer
+  const footerTemplate = await loadTemplate("/partials/footer.html");
+  const footerElement = document.querySelector(".footer"); //use class rather than id so it can be applied to all webpages
+  renderWithTemplate(footerTemplate, footerElement); //no callback function in the footer
 }

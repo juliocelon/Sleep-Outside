@@ -1,4 +1,7 @@
-import { getLocalStorage } from "./utils.mjs";
+import { getLocalStorage, loadHeaderFooter } from "./utils.mjs";
+
+//Call function to load headers and footers
+loadHeaderFooter();
 
 function renderCartContents() { 
   const cartItems = getLocalStorage("so-cart");
@@ -18,7 +21,7 @@ function renderCartContents() {
 
   //TOTAL:
   //Hide the cart-total div if the cart is empty
-  const cartFooter = document.querySelector('.cart-footer');
+  const cartFooter = document.querySelector('.cart-footer-total');
   cartFooter.classList.remove('hide');
   
   //Create an array of all the prices of the items in the cart
@@ -33,13 +36,13 @@ function renderCartContents() {
 
 function cartItemTemplate(item) {
   const newItem = `<li class="cart-card divider">
-  <a href="#" class="cart-card__image">
+  <a href="/product_pages/?product=${item.Id}" class="cart-card__image">
     <img
       src="${item.Image}"
       alt="${item.Name}"
     />
   </a>
-  <a href="#">
+  <a href="/product_pages/?product=${item.Id}">
     <h2 class="card__name">${item.Name}</h2>
   </a>
   <p class="cart-card__color">${item.Colors[0].ColorName}</p>
