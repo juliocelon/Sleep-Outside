@@ -92,3 +92,17 @@ export async function loadHeaderFooter() {
   const footerElement = document.querySelector(".footer"); //use class rather than id so it can be applied to all webpages
   renderWithTemplate(footerTemplate, footerElement); //no callback function in the footer
 }
+function discount(product) {
+    if ( product.FinalPrice < product.SuggestedRetailPrice) {
+        return Math.round(((product.SuggestedRetailPrice - product.FinalPrice)/product.SuggestedRetailPrice)*100);
+    }
+    return;
+}
+
+export function discountIndicator(product) {
+    const discountValue = discount(product);
+    if (discountValue) {
+        return `<p class="discount-indicator highlight">-${discountValue}% Off!</p>`;
+    }
+    return;
+}
