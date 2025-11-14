@@ -7,7 +7,6 @@ loadHeaderFooter();
 
 //Pull category the product-listing/index.html page will be showing from the URL
 const category = getParam('category');
-console.log(category);
 //Create an instance of the ProductData class
 const dataSource = new ProductData();
 //Pull element from HTML document where the products will be shown
