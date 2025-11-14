@@ -259,6 +259,13 @@ button {
   grid-column: 3;
 }
 
+/* Make each row in the cart the same */
+.cart-items {
+  display: flex;
+  flex-flow: column;
+  margin-top: 10px;
+}
+
 /* Superscript on Cart Icon and Cart Total */
 .hide {
   display: none;

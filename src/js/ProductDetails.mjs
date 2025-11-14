@@ -19,7 +19,19 @@ export default class ProductDetails {
 
     addProductToCart() {
         const cartItems = getLocalStorage("so-cart") || [];
-        cartItems.push(this.product);
+        
+        //Check to see if the item is already in the cart.
+        const existingItem = cartItems.find(item => item.Id === this.product.Id);
+
+        //If the item exists in the cart, increase the quantity
+        if (existingItem) {
+            existingItem.quantity = (existingItem.quantity || 1) + 1; //Use the || 1 in case quantity isn't already in local storage
+        } else {
+            this.product.quantity = 1;
+            cartItems.push(this.product);
+        }
+        
+        //Save cart
         setLocalStorage("so-cart", cartItems);
 
         //Refresh the page so the superscript on the cart icon will update
