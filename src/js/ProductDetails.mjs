@@ -10,7 +10,7 @@ export default class ProductDetails {
 
     async init() {
       
-        this.product = await this.dataSource.findProductById(this.productId);
+        this.product = await this.dataSource.findProductById(this.productId);        
         this.renderProductDetails();
         document
             .getElementById('addToCart')
@@ -37,7 +37,7 @@ function productDetailsTemplate(product) {
 
     const productImage = document.getElementById('productImage');
     console.log(productImage);
-    productImage.src = product.Image;
+    productImage.src = product.Images.PrimaryLarge;
     productImage.alt = product.NameWithoutBrand;
 
     document.getElementById('productPrice').textContent = `$${product.FinalPrice}`;

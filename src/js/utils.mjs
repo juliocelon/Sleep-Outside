@@ -25,15 +25,15 @@ export function setClick(selector, callback) {
 export function getParam(param) {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
-  return urlParams.get('product');
+  return urlParams.get(param);
 }
 
 //Create a function that will be able to work with multiple products to create product cards
-export function renderListWithTemplate(templateFn, parentElement, list, position='afterbegin', clear='false') {
+export function renderListWithTemplate(templateFn, parentElement, list, position = 'afterbegin', clear = 'false') {
   //If clear is true, remove existing content before building new product cards
   if (clear) {
     parentElement.innerHTML = '';
-  }  
+  }
 
   //Create an array of product cards for each item in the list
   const htmlStrings = list.map(templateFn);
@@ -45,7 +45,7 @@ export function renderListWithTemplate(templateFn, parentElement, list, position
 export function renderWithTemplate(template, parentElement, callback) {
   //Check if there is a callback function (in this case cartSuperscript)
   parentElement.innerHTML = template;
-  if(callback) {
+  if (callback) {
     callback(); //the way the cartSuperscript function is set up we don't need data entered
   }
 }
@@ -57,7 +57,7 @@ function cartSuperscript() {
 
   //Count the number of items in the cart
   let numberItemsInCart;
-  if (cartItems) { 
+  if (cartItems) {
     numberItemsInCart = cartItems.length;
   } else {
     numberItemsInCart = 0
@@ -74,9 +74,9 @@ function cartSuperscript() {
 }
 
 //Function to call templates
-export async function loadTemplate (path) {
-  const response = await fetch(path); 
-  const template = await response.text(); 
+export async function loadTemplate(path) {
+  const response = await fetch(path);
+  const template = await response.text();
   return template;
 }
 
@@ -93,16 +93,16 @@ export async function loadHeaderFooter() {
   renderWithTemplate(footerTemplate, footerElement); //no callback function in the footer
 }
 function discount(product) {
-    if ( product.FinalPrice < product.SuggestedRetailPrice) {
-        return Math.round(((product.SuggestedRetailPrice - product.FinalPrice)/product.SuggestedRetailPrice)*100);
-    }
-    return;
+  if (product.FinalPrice < product.SuggestedRetailPrice) {
+    return Math.round(((product.SuggestedRetailPrice - product.FinalPrice) / product.SuggestedRetailPrice) * 100);
+  }
+  return;
 }
 
 export function discountIndicator(product) {
-    const discountValue = discount(product);
-    if (discountValue) {
-        return `<p class="discount-indicator highlight">-${discountValue}% Off!</p>`;
-    }
-    return;
+  const discountValue = discount(product);
+  if (discountValue) {
+    return `<p class="discount-indicator highlight">-${discountValue}% Off!</p>`;
+  }
+  return;
 }

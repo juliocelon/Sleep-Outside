@@ -94,6 +94,24 @@ p {
   margin-top: -1.7em;
 }
 
+
+/* Home Page Product Categories */
+
+.product-image {
+  height: 150px;
+}
+
+.product-category-text {
+  text-align: center;
+}
+
+.product-categories {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 20px;
+}
+
+
 /* utility classes */
 .highlight {
   color: var(--tertiary-color);

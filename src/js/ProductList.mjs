@@ -1,4 +1,4 @@
-import { renderListWithTemplate, discountIndicator} from './utils.mjs';
+import { renderListWithTemplate, discountIndicator } from './utils.mjs';
 
 export default class ProductList {
     //Constructor
@@ -11,13 +11,32 @@ export default class ProductList {
     //Methods
     async init() {
         //Use dataSource to get the list of products to work with
-        const list = await this.dataSource.getData();
+        const list = await this.dataSource.getData(this.category);
 
         //Create product cards
         this.renderList(list);
 
-        // //Check to see list is working
-        // console.log(list);
+
+        //ADD CATEGORY NAME TO TOP PRODUCTS HEADER:
+        //Pull h2 element from product_listing/index.html
+        const topProductHeader = document.querySelector(".top-products-header");
+        //To have the spaces and capitalization correct use if statements for formatting
+        let categoryHeader;
+        //For formatting, use if statements to ensure spaces and capitalizations are correct        
+        if (this.category == 'tents') {
+            categoryHeader = 'Tents';
+        } else if (this.category == 'backpacks') {
+            categoryHeader = 'Backpacks';
+        } else if (this.category == 'sleeping-bags') {
+            categoryHeader = 'Sleeping Bags';
+        } else if (this.category == 'hammocks') {
+            categoryHeader = 'Hammocks';
+        };
+        //Put category back into index.html
+        topProductHeader.insertAdjacentHTML("beforeend", `: ${categoryHeader}`);
+        
+        //Check to see list is working
+        console.log(list);
     }
 
 
@@ -29,7 +48,7 @@ export default class ProductList {
 
         //Render product cards for tents using renderListWithTemplate        
         renderListWithTemplate(productCardTemplate, this.listElement, list);
-    }    
+    }
 
 }
 
@@ -37,7 +56,7 @@ export default class ProductList {
 function productCardTemplate(product) {
     return `<li class="product-card">
           <a href="/product_pages/?product=${product.Id}">
-            <img src="${product.Image}" alt="${product.Name}" />
+            <img src="${product.Images.PrimaryMedium}" alt="${product.Name}" />
             <h3 class="card__brand">${product.Brand.Name}</h3>
             <h2 class="card__name">${product.NameWithoutBrand}</h2>
             <p class="product-card__price">$${product.FinalPrice}</p>
