@@ -36,7 +36,7 @@ export default class ProductList {
         topProductHeader.insertAdjacentHTML("beforeend", `: ${categoryHeader}`);
         
         //Check to see list is working
-        console.log(list);
+        // console.log(list);
     }
 
 
