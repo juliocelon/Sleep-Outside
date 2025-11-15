@@ -1,4 +1,4 @@
-import { getLocalStorage, removeFromCart, setLocalStorage, loadHeaderFooter } from "./utils.mjs";
+import { loadHeaderFooter } from './utils.mjs';
 
-// Load dynamic header and footer
+// Load header and footer
 loadHeaderFooter();
