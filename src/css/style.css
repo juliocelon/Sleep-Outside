@@ -1,14 +1,11 @@
 :root {
   --font-body: Arial, Helvetica, sans-serif;
   --font-headline: Haettenschweiler, "Arial Narrow Bold", sans-serif;
-  /* colors */
   --primary-color: #f0a868;
   --secondary-color: #525b0f;
   --tertiary-color: #8a470c;
   --light-grey: #d0d0d0;
   --dark-grey: #303030;
-
-  /* sizes */
   --font-base: 18px;
   --small-font: 0.8em;
   --large-font: 1.2em;
@@ -24,6 +21,8 @@ body {
   font-family: var(--font-body);
   font-size: var(--font-base);
   color: var(--dark-grey);
+  max-width: 1080px;
+  margin: auto;
 }
 
 img {
@@ -75,7 +74,6 @@ p {
   font-size: var(--small-font);
   width: 110px;
   height: 80px;
-
   flex-direction: column;
   align-items: flex-end;
   box-shadow: 1px 1px 4px var(--light-grey);
@@ -94,7 +92,6 @@ p {
   margin-top: -1.7em;
 }
 
-/* utility classes */
 .highlight {
   color: var(--tertiary-color);
 }
@@ -114,9 +111,6 @@ button {
   border-bottom: 2px solid var(--primary-color);
 }
 
-/* End utility classes */
-
-/* Cart icon styles */
 .cart {
   padding-top: 1em;
   position: relative;
@@ -146,8 +140,6 @@ button {
   justify-content: center;
   font-weight: bold;
 }
-
-/* End cart icon styles */
 
 .mission {
   position: absolute;
@@ -184,7 +176,6 @@ button {
   color: var(--dark-grey);
 }
 
-/* Styles for product lists */
 .product-card {
   flex: 1 1 45%;
   margin: 0.25em;
@@ -207,8 +198,6 @@ button {
   font-size: 1em;
 }
 
-/* End product list card */
-
 .product-detail {
   padding: 1em;
   max-width: 500px;
@@ -219,7 +208,6 @@ button {
   width: 100%;
 }
 
-/* Start cart list card styles */
 .cart-card {
   display: grid;
   grid-template-columns: 25% auto 20% 15%;
@@ -263,7 +251,6 @@ button {
   padding-right: 1rem;
 }
 
-/* Quantity controls */
 .quantity-controls {
   display: flex;
   align-items: center;
@@ -296,7 +283,6 @@ button {
   font-weight: bold;
 }
 
-/* Remove button styles */
 .remove-btn {
   background: var(--primary-color);
   color: white;
@@ -320,7 +306,6 @@ button {
   background: var(--tertiary-color);
 }
 
-/* Empty cart styles */
 .empty-cart {
   text-align: center;
   padding: 2rem;
@@ -337,28 +322,11 @@ button {
   text-decoration: underline;
 }
 
-@media screen and (min-width: 500px) {
-  body {
-    max-width: 1080px;
-    margin: auto;
-  }
-
-  .mission {
-    font-size: 1.2em;
-  }
-
-  .cart-card {
-    font-size: inherit;
-    grid-template-columns: 150px auto 20% 15%;
-  }
-}
-
 footer {
   font-size: var(--small-font);
   padding: 1em;
 }
 
-/* Cart Totals Styles */
 .cart-totals {
   padding: 1.5rem;
   margin-top: 2rem;
@@ -401,7 +369,6 @@ footer {
   background-color: var(--tertiary-color);
 }
 
-/* Breadcrumbs */
 .breadcrumbs {
   margin: 1rem 0;
 }
@@ -410,6 +377,7 @@ footer {
   list-style: none;
   display: flex;
   gap: 0.5rem;
+  padding: 0;
 }
 
 .breadcrumbs a {
@@ -421,7 +389,6 @@ footer {
   text-decoration: underline;
 }
 
-/* Discount Flags */
 .discount-flag, .discount-badge {
   background: #e74c3c;
   color: white;
@@ -433,7 +400,6 @@ footer {
   margin-bottom: 0.5rem;
 }
 
-/* Price Container */
 .price-container {
   display: flex;
   align-items: center;
@@ -447,7 +413,6 @@ footer {
   font-size: 0.9rem;
 }
 
-/* Product Controls */
 .product-controls {
   display: flex;
   gap: 1rem;
@@ -459,9 +424,13 @@ footer {
   padding: 0.5rem;
   border: 1px solid #ddd;
   border-radius: 4px;
+  font-size: 1rem;
 }
 
-/* Custom Alert */
+.search-box input {
+  min-width: 200px;
+}
+
 .custom-alert {
   background: #3498db;
   color: white;
@@ -488,16 +457,54 @@ footer {
   height: 30px;
 }
 
-.cart-count {
-  background: #ff4444;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 12px;
-  margin-left: 5px;
+.categories {
+  padding: 2rem 0;
 }
 
-.cart-link {
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.category-card {
   display: flex;
+  flex-direction: column;
   align-items: center;
+  padding: 1.5rem;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.category-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+}
+
+.category-card img {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 1rem;
+}
+
+.category-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  text-align: center;
+}
+
+@media screen and (min-width: 500px) {
+  .mission {
+    font-size: 1.2em;
+  }
+
+  .cart-card {
+    font-size: inherit;
+    grid-template-columns: 150px auto 20% 15%;
+  }
 }

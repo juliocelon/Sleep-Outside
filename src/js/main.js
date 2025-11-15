@@ -1,9 +1,4 @@
-import ProductData from "./ProductData.mjs";
-import ProductList from "./ProductList.mjs";
 import { getCartCount, loadHeaderFooter } from "./utils.mjs";
-
-// Array of tent IDs that have product pages
-const availableTentIds = ["880RR", "985RF", "985PR", "344YJ"];
 
 // Function to detect GitHub Pages environment
 function getBasePath() {
@@ -84,6 +79,46 @@ function fixInternalLinks() {
   });
 }
 
+// Add category links to home page
+function addCategoryLinks() {
+  const basePath = getBasePath();
+  const categoriesHTML = `
+    <section class="categories">
+      <h2>Shop by Category</h2>
+      <div class="category-grid">
+        <a href="${basePath}product_listing/?category=tents" class="category-card">
+          <img src="${basePath}public/images/noun_Tent_2517.svg" alt="Tents">
+          <h3>Tents</h3>
+        </a>
+        <a href="${basePath}product_listing/?category=backpacks" class="category-card">
+          <img src="${basePath}public/images/noun_Backpack_65884.svg" alt="Backpacks">
+          <h3>Backpacks</h3>
+        </a>
+        <a href="${basePath}product_listing/?category=sleeping-bags" class="category-card">
+          <img src="${basePath}public/images/noun_Backpack_2389275.svg" alt="Sleeping Bags">
+          <h3>Sleeping Bags</h3>
+        </a>
+        <a href="${basePath}product_listing/?category=hammocks" class="category-card">
+          <img src="${basePath}public/images/noun_Tent_2517.svg" alt="Hammocks">
+          <h3>Hammocks</h3>
+        </a>
+      </div>
+    </section>
+  `;
+  
+  // Remove the old products section and replace with categories
+  const productsSection = document.querySelector('.products');
+  if (productsSection) {
+    productsSection.remove(); // Remove the old static product listing
+  }
+  
+  // Add categories after the hero section
+  const heroSection = document.querySelector('.hero');
+  if (heroSection) {
+    heroSection.insertAdjacentHTML('afterend', categoriesHTML);
+  }
+}
+
 // SINGLE DOMContentLoaded event listener
 document.addEventListener("DOMContentLoaded", async function () {
   // Load dynamic header and footer ONCE
@@ -91,37 +126,9 @@ document.addEventListener("DOMContentLoaded", async function () {
   
   // Add customizable alert
   addCustomAlert();
-
-  const productListElement = document.querySelector(".product-list");
-
-  // Product list initialization
-  if (productListElement) {
-    try {
-      const dataSource = new ProductData("tents");
-      const productList = new ProductList(
-        "tents",
-        dataSource,
-        productListElement,
-      );
-
-      // Get all products and filter to only show those with detail pages
-      const allProducts = await dataSource.getData();
-      const filteredProducts = allProducts.filter((product) =>
-        availableTentIds.includes(product.Id),
-      );
-
-      // Initialize the product list with search and sort
-      productList.products = filteredProducts;
-      productList.filteredProducts = [...filteredProducts];
-      productList.renderList(filteredProducts);
-      productList.addSearchAndSort();
-      
-      // Fix links after products are rendered
-      setTimeout(fixInternalLinks, 100);
-    } catch (error) {
-      // Error handling without console statement
-    }
-  }
+  
+  // Add category links to home page
+  addCategoryLinks();
 
   // Fix existing links and update cart
   fixInternalLinks();

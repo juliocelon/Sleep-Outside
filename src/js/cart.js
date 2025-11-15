@@ -5,6 +5,7 @@ loadHeaderFooter();
 
 function renderCartContents() {
   const cartItems = getLocalStorage("so-cart");
+  console.log('🛒 Cart items from localStorage:', cartItems);
 
   // Handle empty cart
   if (!cartItems || (Array.isArray(cartItems) && cartItems.length === 0)) {
@@ -22,6 +23,15 @@ function renderCartContents() {
 
   // Handle single item (convert to array)
   const itemsArray = Array.isArray(cartItems) ? cartItems : [cartItems];
+  
+  // Log image data for first item to debug
+  if (itemsArray.length > 0) {
+    console.log('🖼️ First cart item image data:', {
+      Image: itemsArray[0].Image,
+      Images: itemsArray[0].Images,
+      Name: itemsArray[0].Name
+    });
+  }
 
   const htmlItems = itemsArray.map((item) => cartItemTemplate(item));
   document.querySelector(".product-list").innerHTML = htmlItems.join("");
@@ -37,17 +47,25 @@ function cartItemTemplate(item) {
   const quantity = item.quantity || 1;
   const totalPrice = (item.FinalPrice * quantity).toFixed(2);
 
+  // Use API image paths - the Images object contains different sizes
+  const imagePath = item.Images?.PrimaryMedium || 
+                   item.Images?.PrimaryLarge || 
+                   item.Images?.PrimarySmall ||
+                   item.Image || // fallback to old field name
+                   '/images/placeholder.jpg';
+
   const newItem = `<li class="cart-card divider">
     <a href="#" class="cart-card__image">
       <img
-        src="${item.Image}"
+        src="${imagePath}"
         alt="${item.Name}"
+        onerror="this.src='/public/images/noun_Tent_2517.svg'"
       />
     </a>
     <a href="#">
       <h2 class="card__name">${item.Name}</h2>
     </a>
-    <p class="cart-card__color">${item.Colors[0].ColorName}</p>
+    <p class="cart-card__color">${item.Colors ? item.Colors[0].ColorName : 'N/A'}</p>
     <div class="cart-card__quantity">
       <button class="quantity-btn minus" data-id="${item.Id}">-</button>
       <span class="quantity-display">qty: ${quantity}</span>
