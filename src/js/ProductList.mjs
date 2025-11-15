@@ -38,11 +38,72 @@ export default class ProductList {
     this.dataSource = dataSource;
     this.listElement = listElement;
     this.products = [];
+    this.filteredProducts = [];
   }
 
   async init() {
     this.products = await this.dataSource.getData();
-    this.renderList(this.products);
+    this.filteredProducts = [...this.products];
+    this.renderList(this.filteredProducts);
+    this.addSearchAndSort();
+  }
+
+  addSearchAndSort() {
+    // Create search and sort controls
+    const controlsHTML = `
+      <div class="product-controls">
+        <div class="search-box">
+          <input type="text" id="productSearch" placeholder="Search products..." />
+        </div>
+        <div class="sort-box">
+          <select id="productSort">
+            <option value="name">Sort by Name</option>
+            <option value="price-low">Price: Low to High</option>
+            <option value="price-high">Price: High to Low</option>
+            <option value="brand">Sort by Brand</option>
+          </select>
+        </div>
+      </div>
+    `;
+    
+    this.listElement.insertAdjacentHTML('beforebegin', controlsHTML);
+    
+    // Add event listeners
+    document.getElementById('productSearch').addEventListener('input', (e) => {
+      this.searchProducts(e.target.value);
+    });
+    
+    document.getElementById('productSort').addEventListener('change', (e) => {
+      this.sortProducts(e.target.value);
+    });
+  }
+
+  searchProducts(searchTerm) {
+    const term = searchTerm.toLowerCase();
+    this.filteredProducts = this.products.filter(product => 
+      product.Name.toLowerCase().includes(term) ||
+      product.Brand.Name.toLowerCase().includes(term) ||
+      product.NameWithoutBrand.toLowerCase().includes(term)
+    );
+    this.renderList(this.filteredProducts);
+  }
+
+  sortProducts(sortBy) {
+    switch(sortBy) {
+      case 'name':
+        this.filteredProducts.sort((a, b) => a.Name.localeCompare(b.Name));
+        break;
+      case 'price-low':
+        this.filteredProducts.sort((a, b) => a.FinalPrice - b.FinalPrice);
+        break;
+      case 'price-high':
+        this.filteredProducts.sort((a, b) => b.FinalPrice - a.FinalPrice);
+        break;
+      case 'brand':
+        this.filteredProducts.sort((a, b) => a.Brand.Name.localeCompare(b.Brand.Name));
+        break;
+    }
+    this.renderList(this.filteredProducts);
   }
 
   renderList(products) {
@@ -60,6 +121,12 @@ function productCardTemplate(product) {
   const basePath = getBasePath();
   const imagePath = fixImagePath(product.Image);
   
+  // Calculate discount if any
+  const hasDiscount = product.SuggestedRetailPrice > product.FinalPrice;
+  const discountPercent = hasDiscount 
+    ? Math.round(((product.SuggestedRetailPrice - product.FinalPrice) / product.SuggestedRetailPrice) * 100)
+    : 0;
+
   return `
     <li class="product-card">
       <a href="${basePath}product_pages/?product=${product.Id}">
@@ -69,7 +136,11 @@ function productCardTemplate(product) {
         />
         <h3 class="card__brand">${product.Brand.Name}</h3>
         <h2 class="card__name">${product.NameWithoutBrand}</h2>
-        <p class="product-card__price">$${product.FinalPrice}</p>
+        ${hasDiscount ? `<div class="discount-badge">Save ${discountPercent}%</div>` : ''}
+        <div class="price-container">
+          ${hasDiscount ? `<span class="original-price">$${product.SuggestedRetailPrice.toFixed(2)}</span>` : ''}
+          <p class="product-card__price">$${product.FinalPrice}</p>
+        </div>
       </a>
     </li>
   `;

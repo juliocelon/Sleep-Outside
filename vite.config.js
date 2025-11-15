@@ -21,5 +21,26 @@ export default defineConfig({
   },
   server: {
     open: true,
+    // Add this to ensure static files are served correctly
+    fs: {
+      strict: false
+    }
   },
+  // Add this to exclude HTML partials from being processed
+  plugins: [
+    {
+      name: 'html-partials',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          // If requesting HTML partials, serve them as static files
+          if (req.url?.includes('/partials/') && req.url?.endsWith('.html')) {
+            const url = new URL(req.url, 'http://localhost');
+            next();
+            return;
+          }
+          next();
+        });
+      }
+    }
+  ]
 });

@@ -1,4 +1,7 @@
-import { getLocalStorage, removeFromCart, setLocalStorage } from "./utils.mjs";
+import { loadHeaderFooter, getLocalStorage, removeFromCart, setLocalStorage } from "./utils.mjs";
+
+// Load dynamic header and footer
+loadHeaderFooter();
 
 function renderCartContents() {
   const cartItems = getLocalStorage("so-cart");

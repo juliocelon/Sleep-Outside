@@ -64,3 +64,43 @@ export function renderListWithTemplate(templateFn, parentElement, list, position
   const htmlStrings = list.map(templateFn);
   parentElement.insertAdjacentHTML(position, htmlStrings.join(''));
 }
+
+// NEW FUNCTIONS FOR DYNAMIC HEADER/FOOTER
+
+export async function renderWithTemplate(template, parentElement, data, callback) {
+  parentElement.insertAdjacentHTML("afterbegin", template);
+  
+  if (callback) {
+    callback(data);
+  }
+}
+
+export async function loadTemplate(path) {
+  const res = await fetch(path);
+  if (res.ok) {
+    const template = await res.text();
+    return template;
+  } else {
+    throw new Error(`Failed to load template: ${path}`);
+  }
+}
+
+export async function loadHeaderFooter() {
+  try {
+    // Use simple relative paths - these should work with the fixed Vite config
+    const headerTemplate = await loadTemplate('/public/partials/header.html');
+    const headerElement = document.getElementById('main-header');
+    if (headerElement) {
+      await renderWithTemplate(headerTemplate, headerElement);
+    }
+    
+    const footerTemplate = await loadTemplate('/public/partials/footer.html');
+    const footerElement = document.getElementById('main-footer');
+    if (footerElement) {
+      await renderWithTemplate(footerTemplate, footerElement);
+    }
+    
+  } catch (error) {
+    console.error('Error loading header/footer:', error);
+  }
+}

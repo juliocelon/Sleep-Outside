@@ -1,6 +1,6 @@
 import ProductData from "./ProductData.mjs";
 import ProductList from "./ProductList.mjs";
-import { getCartCount } from "./utils.mjs";
+import { getCartCount, loadHeaderFooter } from "./utils.mjs";
 
 // Array of tent IDs that have product pages
 const availableTentIds = ["880RR", "985RF", "985PR", "344YJ"];
@@ -11,6 +11,33 @@ function getBasePath() {
     return '/Sleep-Outside/';
   }
   return './';
+}
+
+// Add this function to main.js
+function addCustomAlert() {
+  const alertHTML = `
+    <div class="custom-alert" id="siteAlert">
+      <div class="alert-content">
+        <span class="alert-message">🚨 Special Offer: Free shipping on orders over $50!</span>
+        <button class="alert-close" id="closeAlert">×</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.insertAdjacentHTML('afterbegin', alertHTML);
+  
+  // Add close functionality
+  document.getElementById('closeAlert').addEventListener('click', function() {
+    document.getElementById('siteAlert').style.display = 'none';
+  });
+  
+  // Optional: Auto-hide after 5 seconds
+  setTimeout(() => {
+    const alert = document.getElementById('siteAlert');
+    if (alert) {
+      alert.style.display = 'none';
+    }
+  }, 5000);
 }
 
 // Function to update cart icon with item count
@@ -57,10 +84,17 @@ function fixInternalLinks() {
   });
 }
 
-// Initialize when DOM is loaded
+// SINGLE DOMContentLoaded event listener
 document.addEventListener("DOMContentLoaded", async function () {
+  // Load dynamic header and footer ONCE
+  await loadHeaderFooter();
+  
+  // Add customizable alert
+  addCustomAlert();
+
   const productListElement = document.querySelector(".product-list");
 
+  // Product list initialization
   if (productListElement) {
     try {
       const dataSource = new ProductData("tents");
@@ -76,8 +110,11 @@ document.addEventListener("DOMContentLoaded", async function () {
         availableTentIds.includes(product.Id),
       );
 
-      // Render the filtered list
+      // Initialize the product list with search and sort
+      productList.products = filteredProducts;
+      productList.filteredProducts = [...filteredProducts];
       productList.renderList(filteredProducts);
+      productList.addSearchAndSort();
       
       // Fix links after products are rendered
       setTimeout(fixInternalLinks, 100);
