@@ -1,4 +1,4 @@
-import { renderListWithTemplate, discountIndicator} from './utils.mjs';
+import { renderListWithTemplate, discountIndicator } from './utils.mjs';
 
 export default class ProductList {
     //Constructor
@@ -11,13 +11,11 @@ export default class ProductList {
     //Methods
     async init() {
         //Use dataSource to get the list of products to work with
-        const list = await this.dataSource.getData();
+        const list = await this.dataSource.getData(this.category);
 
-        //Create product cards
         this.renderList(list);
 
-        // //Check to see list is working
-        // console.log(list);
+        document.querySelector(".title").textContent = this.category;
     }
 
 
@@ -29,7 +27,7 @@ export default class ProductList {
 
         //Render product cards for tents using renderListWithTemplate        
         renderListWithTemplate(productCardTemplate, this.listElement, list);
-    }    
+    }
 
 }
 
