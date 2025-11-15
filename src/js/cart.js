@@ -5,6 +5,7 @@ loadHeaderFooter();
 
 function renderCartContents() {
   const cartItems = getLocalStorage("so-cart");
+  // console.log(cartItems);
 
   //Check to see if anything is in the cart
   if (!cartItems) { //means if cartItems is falsy (falsy means false, 0, null, empty string, undefined, NaN)
@@ -41,7 +42,7 @@ function renderCartContents() {
   attachQuantityListeners();
 }
 
-function cartItemTemplate(item) {
+function cartItemTemplate(item) {  
   const newItem = `<li class="cart-card divider">
   <a href="/product_pages/?product=${item.Id}" class="cart-card__image">
     <img

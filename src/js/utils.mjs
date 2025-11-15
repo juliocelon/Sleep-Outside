@@ -5,7 +5,8 @@ export function qs(selector, parent = document) {
 // or a more concise version if you are into that sort of thing:
 // export const qs = (selector, parent = document) => parent.querySelector(selector);
 
-// retrieve data from localstorage
+
+// Function to retrieve data from localstorage
 export function getLocalStorage(key) {
   return JSON.parse(localStorage.getItem(key));
 }
@@ -22,13 +23,16 @@ export function setClick(selector, callback) {
   qs(selector).addEventListener("click", callback);
 }
 
+
+//Function to get parameters from URLs
 export function getParam(param) {
   const queryString = window.location.search;
   const urlParams = new URLSearchParams(queryString);
   return urlParams.get(param);
 }
 
-//Create a function that will be able to work with multiple products to create product cards
+
+//Create a function that will be able to work with multiple categories to create product cards
 export function renderListWithTemplate(templateFn, parentElement, list, position = 'afterbegin', clear = 'false') {
   //If clear is true, remove existing content before building new product cards
   if (clear) {
@@ -41,6 +45,7 @@ export function renderListWithTemplate(templateFn, parentElement, list, position
   parentElement.insertAdjacentHTML(position, htmlStrings.join('')); //join prevents commas between each list item (<li></li>)  
 }
 
+
 //Function to create the header and footer for each webpage
 export function renderWithTemplate(template, parentElement, callback) {
   //Check if there is a callback function (in this case cartSuperscript)
@@ -50,18 +55,18 @@ export function renderWithTemplate(template, parentElement, callback) {
   }
 }
 
+
 //Function to create a superscript on the cart in the header
 function cartSuperscript() {
   //Pull items in cart from local storage
-  const cartItems = getLocalStorage('so-cart');
+  const cartItems = getLocalStorage('so-cart') || [];
 
-  //Count the number of items in the cart
-  let numberItemsInCart;
-  if (cartItems) {
-    numberItemsInCart = cartItems.length;
-  } else {
-    numberItemsInCart = 0
-  }
+  //If quantity is 0, exit function
+  if (cartItems.length === 0) return;
+
+  //Add the quantities to determine the number of objects in the cart
+  const quantityItemsInCart = cartItems.map(item => item.quantity); //An array only containing the quantities of the items in the cart
+  const numberItemsInCart = quantityItemsInCart.reduce((sum, quantity) => sum + quantity, 0); //Sum the quantitites
 
   //Hide the superscript if nothing is in the cart, otherwise show
   if (numberItemsInCart > 0) { //means if value is NOT falsy (or in other words, is not false, null, 0, etc.)
@@ -73,6 +78,7 @@ function cartSuperscript() {
   }
 }
 
+
 //Function to call templates
 export async function loadTemplate(path) {
   const response = await fetch(path);
@@ -80,18 +86,22 @@ export async function loadTemplate(path) {
   return template;
 }
 
+
 //Function to load headers and footers
 export async function loadHeaderFooter() {
   //Load and publish header
-  const headerTemplate = await loadTemplate("/partials/header.html"); //Use an absolute file path rather than relative so it will load regardless of where the webpage is in the folders
+  const headerTemplate = await loadTemplate("./partials/header.html"); //Use an absolute file path rather than relative so it will load regardless of where the webpage is in the folders
   const headerElement = document.querySelector(".header"); //use class rather than id so it can be applied to all webpages
   renderWithTemplate(headerTemplate, headerElement, cartSuperscript);
 
   //Load and publish footer
-  const footerTemplate = await loadTemplate("/partials/footer.html"); //Use an absolute file path rather than relative so it will load regardless of where the webpage is in the folders
+  const footerTemplate = await loadTemplate("./partials/footer.html"); //Use an absolute file path rather than relative so it will load regardless of where the webpage is in the folders
   const footerElement = document.querySelector(".footer"); //use class rather than id so it can be applied to all webpages
   renderWithTemplate(footerTemplate, footerElement); //no callback function in the footer
 }
+
+
+//Function to add product discounts
 function discount(product) {
   if (product.FinalPrice < product.SuggestedRetailPrice) {
     return Math.round(((product.SuggestedRetailPrice - product.FinalPrice) / product.SuggestedRetailPrice) * 100);
@@ -99,6 +109,7 @@ function discount(product) {
   return;
 }
 
+//Function to display product discounts
 export function discountIndicator(product) {
   const discountValue = discount(product);
   if (discountValue) {
