@@ -87,14 +87,20 @@ export async function loadTemplate(path) {
 
 export async function loadHeaderFooter() {
   try {
-    // Use simple relative paths - these should work with the fixed Vite config
-    const headerTemplate = await loadTemplate('/public/partials/header.html');
+    // Detect base path for GitHub Pages
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    const basePath = isGitHubPages ? '/Sleep-Outside' : '';
+    
+    // Use base path for templates - works in both dev and production
+    const headerTemplate = await loadTemplate(`${basePath}/public/partials/header.html`);
     const headerElement = document.getElementById('main-header');
     if (headerElement) {
       await renderWithTemplate(headerTemplate, headerElement);
+      // Fix image paths after header is loaded
+      fixHeaderPaths(basePath);
     }
     
-    const footerTemplate = await loadTemplate('/public/partials/footer.html');
+    const footerTemplate = await loadTemplate(`${basePath}/public/partials/footer.html`);
     const footerElement = document.getElementById('main-footer');
     if (footerElement) {
       await renderWithTemplate(footerTemplate, footerElement);
@@ -103,4 +109,30 @@ export async function loadHeaderFooter() {
   } catch (error) {
     console.error('Error loading header/footer:', error);
   }
+}
+
+// Helper function to fix image paths in header
+function fixHeaderPaths(basePath) {
+  const header = document.getElementById('main-header');
+  if (!header) return;
+  
+  // Fix logo image path
+  const logoImg = header.querySelector('.logo img');
+  if (logoImg) {
+    const currentSrc = logoImg.getAttribute('src');
+    // If it's the default path, update it with base path
+    if (currentSrc === '/public/images/noun_Tent_2517.svg') {
+      logoImg.src = `${basePath}/public/images/noun_Tent_2517.svg`;
+    }
+  }
+  
+  // Fix links in header
+  const links = header.querySelectorAll('a[href]');
+  links.forEach(link => {
+    const href = link.getAttribute('href');
+    // Update absolute paths that don't have base path
+    if (href.startsWith('/') && !href.startsWith(basePath)) {
+      link.href = `${basePath}${href}`;
+    }
+  });
 }
