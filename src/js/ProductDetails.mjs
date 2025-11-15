@@ -1,4 +1,4 @@
-import { getLocalStorage, setLocalStorage, discountIndicator } from "./utils.mjs";
+import { getLocalStorage, setLocalStorage, discountIndicatorAmount } from "./utils.mjs";
 
 export default class ProductDetails {
 
@@ -46,6 +46,6 @@ function productDetailsTemplate(product) {
     document.getElementById('addToCart').dataset.id = product.Id;
     
     const productDetails = document.querySelector('.product-detail');
-    productDetails.insertAdjacentHTML('beforeend', discountIndicator(product));
+    productDetails.insertAdjacentHTML('beforeend', discountIndicatorAmount(product));
 }   
 
