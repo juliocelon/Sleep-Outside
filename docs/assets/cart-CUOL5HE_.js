@@ -1,4 +1,4 @@
-import{l as m,a as l,r as g,s as y}from"./utils-CaVCbCby.js";m();function s(){const t=l("so-cart");if(console.log("🛒 Cart items from localStorage:",t),!t||Array.isArray(t)&&t.length===0){document.querySelector(".product-list").innerHTML=`
+import{l as m,a as l,r as g,s as y}from"./utils-MX4Wut5O.js";m();function s(){const t=l("so-cart");if(console.log("🛒 Cart items from localStorage:",t),!t||Array.isArray(t)&&t.length===0){document.querySelector(".product-list").innerHTML=`
       <li class="empty-cart">
         <p>Your cart is empty</p>
         <a href="../">Continue Shopping</a>
