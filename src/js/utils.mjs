@@ -59,7 +59,10 @@ export function renderWithTemplate(template, parentElement, callback) {
 //Function to create a superscript on the cart in the header
 function cartSuperscript() {
   //Pull items in cart from local storage
-  const cartItems = getLocalStorage('so-cart');
+  const cartItems = getLocalStorage('so-cart') || [];
+
+  //If quantity is 0, exit function
+  if (cartItems.length === 0) return;
 
   //Add the quantities to determine the number of objects in the cart
   const quantityItemsInCart = cartItems.map(item => item.quantity); //An array only containing the quantities of the items in the cart
@@ -87,12 +90,12 @@ export async function loadTemplate(path) {
 //Function to load headers and footers
 export async function loadHeaderFooter() {
   //Load and publish header
-  const headerTemplate = await loadTemplate("/partials/header.html"); //Use an absolute file path rather than relative so it will load regardless of where the webpage is in the folders
+  const headerTemplate = await loadTemplate("./partials/header.html"); //Use an absolute file path rather than relative so it will load regardless of where the webpage is in the folders
   const headerElement = document.querySelector(".header"); //use class rather than id so it can be applied to all webpages
   renderWithTemplate(headerTemplate, headerElement, cartSuperscript);
 
   //Load and publish footer
-  const footerTemplate = await loadTemplate("/partials/footer.html"); //Use an absolute file path rather than relative so it will load regardless of where the webpage is in the folders
+  const footerTemplate = await loadTemplate("./partials/footer.html"); //Use an absolute file path rather than relative so it will load regardless of where the webpage is in the folders
   const footerElement = document.querySelector(".footer"); //use class rather than id so it can be applied to all webpages
   renderWithTemplate(footerTemplate, footerElement); //no callback function in the footer
 }
