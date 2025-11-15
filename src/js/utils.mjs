@@ -109,7 +109,7 @@ export function discountIndicator(product) {
 
 export function discountIndicatorAmount(product) {
   if (product.FinalPrice < product.SuggestedRetailPrice) {
-    return `<p class="discount-indicator highlight">-${product.SuggestedRetailPrice - product.FinalPrice} Off!</p>`;
+    return `<p class="discount-indicator highlight">-$${Math.round(product.SuggestedRetailPrice - product.FinalPrice)} Off!</p>`;
   }
 }
 
