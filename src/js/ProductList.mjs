@@ -1,46 +1,50 @@
-import { renderListWithTemplate } from './utils.mjs';
+import { renderListWithTemplate, discountIndicator } from './utils.mjs';
 
 export default class ProductList {
-    //Constructor
+    // Constructor
     constructor(category, dataSource, listElement) {
         this.category = category;
         this.dataSource = dataSource;
         this.listElement = listElement;
     }
 
-    //Methods
     async init() {
-        //Use dataSource to get the list of products to work with
-        const list = await this.dataSource.getData();
+        // Get the list from the data source
+        const list = await this.dataSource.getData(this.category);
 
-        //Create product cards
+        // Render the list
         this.renderList(list);
 
-        // //Check to see list is working
-        // console.log(list);
+        // Grab the top products header from the DOM
+        const topProductHeader = document.querySelector(".top-products-header");
+        let categoryHeader;
+        if (this.category == 'tents') {
+            categoryHeader = 'Tents';
+        } else if (this.category == 'backpacks') {
+            categoryHeader = 'Backpacks';
+        } else if (this.category == 'sleeping-bags') {
+            categoryHeader = 'Sleeping Bags';
+        } else if (this.category == 'hammocks') {
+            categoryHeader = 'Hammocks';
+        };
+        topProductHeader.insertAdjacentHTML("beforeend", `: ${categoryHeader}`);    
     }
 
 
     renderList(list) {
-        // //Create an array of product cards for each item in the list
-        // const htmlStrings = list.map(productCardTemplate);
-        // //Join the items in the list together and insert into the listElement (in main we call <ul> from the index.html file as the listElement)
-        // this.listElement.insertAdjacentHTML('afterbegin', htmlStrings.join('')); //join prevents commas between each list item (<li></li>)
-
-        //Render product cards for tents using renderListWithTemplate        
         renderListWithTemplate(productCardTemplate, this.listElement, list);
-    }    
+    }
 
 }
 
-//Global Functions
 function productCardTemplate(product) {
     return `<li class="product-card">
-          <a href="product_pages/?product=${product.Id}">
-            <img src="${product.Image}" alt="${product.Name}" />
+          <a href="/product_pages/?product=${product.Id}">
+            <img src="${product.Images.PrimaryMedium}" alt="${product.Name}" />
             <h3 class="card__brand">${product.Brand.Name}</h3>
             <h2 class="card__name">${product.NameWithoutBrand}</h2>
             <p class="product-card__price">$${product.FinalPrice}</p>
+            ${discountIndicator(product)}
           </a>
         </li>`
 }
