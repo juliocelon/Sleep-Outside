@@ -58,7 +58,7 @@ function cartItemTemplate(item) {
 
 
 //Use this line to test that the total disappears when the cart is empty--it empties the cart
-localStorage.removeItem('so-cart');
+// localStorage.removeItem('so-cart');
 
 
 renderCartContents();
