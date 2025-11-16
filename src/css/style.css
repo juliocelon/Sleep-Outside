@@ -90,7 +90,7 @@ p {
   margin-top: -1.3em;
 }
 
-.logo--square > div {
+.logo--square>div {
   margin-top: -1.7em;
 }
 
@@ -282,7 +282,8 @@ button {
   justify-content: center;
   align-items: center;
   text-decoration: none;
-  position: absolute; /*puts the superscript to the right of the svg */
+  position: absolute;
+  /*puts the superscript to the right of the svg */
   top: 0;
   right: -5px;
 }
@@ -316,4 +317,15 @@ button {
 footer {
   font-size: var(--small-font);
   padding: 1em;
+}
+
+.cart-qty-input {
+  width: 55px;
+  padding: 5px 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
