@@ -145,8 +145,9 @@ button {
   width: 25px;
 }
 
-.cart:hover svg {
+.cart svg:hover {
   fill: gray;
+  cursor: pointer;
 }
 
 /* End cart icon styles */

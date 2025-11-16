@@ -1,3 +1,5 @@
+import Alert from "./Alert.mjs";
+
 // wrapper for querySelector...returns matching element
 export function qs(selector, parent = document) {
   return parent.querySelector(selector);
@@ -94,11 +96,28 @@ export async function loadHeaderFooter() {
   const headerElement = document.querySelector(".header"); //use class rather than id so it can be applied to all webpages
   renderWithTemplate(headerTemplate, headerElement, cartSuperscript);
 
+  // Now that the header has been created, add an event listener to the info icon to toggle whether the notifications are visible or not
+  const notificationsIcon = document.getElementById('notifications-icon');
+  notificationsIcon.addEventListener('click', () => {
+    // Get the alert-list
+    const alertList = document.querySelector('.alert-list');
+
+    // If the alert list exists, toggle it off by removing it from the dom
+    if (alertList) {
+      alertList.remove();
+    }
+    else {
+      const alert = new Alert();
+      alert.createAlerts();
+    }
+  })
+
   //Load and publish footer
   const footerTemplate = await loadTemplate("/partials/footer.html"); //Use an absolute file path rather than relative so it will load regardless of where the webpage is in the folders
   const footerElement = document.querySelector(".footer"); //use class rather than id so it can be applied to all webpages
   renderWithTemplate(footerTemplate, footerElement); //no callback function in the footer
 }
+
 
 
 //Function to add product discounts
