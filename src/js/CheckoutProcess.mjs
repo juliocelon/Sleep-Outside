@@ -1,3 +1,5 @@
+import { getLocalStorage } from "./utils.mjs";
+
 export default class CheckoutProcess {
     //Constructor
     constructor(key, outputSelector) {
@@ -12,7 +14,15 @@ export default class CheckoutProcess {
 
     init() {
         this.list = getLocalStorage(this.key);
-        this.calculateItemSummary();
+        this.calculateItemSubTotal();
+
+        //Add event listener to update taxes, shipping, and order total when a zipcode is entered.
+        const zipcodeInput = document.querySelector('#zipcode');
+        if (zipcodeInput) {
+            zipcodeInput.addEventListener('change', () => {
+                this.calculateOrderTotal();
+            })
+        }
     }
 
     //Methods
@@ -29,7 +39,7 @@ export default class CheckoutProcess {
         
         //Display the subtotal
         const subTotal = document.querySelector(`${this.outputSelector} #checkout-subtotal`);
-        subTotal.innerHTML = `$${this.itemTotal.toFixed(2)}`;
+        subTotal.innerHTML = `Subtotal: $${this.itemTotal.toFixed(2)}`;
     }
 
     calculateOrderTotal() {
@@ -57,14 +67,8 @@ export default class CheckoutProcess {
         const shipping = document.querySelector(`${this.outputSelector} #checkout-shipping`);
         const totalCost = document.querySelector(`${this.outputSelector} #checkout-total`);
 
-        tax.innerHTML = `$${this.tax.toFixed(2)}`;
-        shipping.innerHTML = `$${this.shipping.toFixed(2)}`;
-        totalCost.innerHTML = `$${this.orderTotal.toFixed(2)}`;
+        tax.innerHTML = `Taxes: $${this.tax.toFixed(2)}`;
+        shipping.innerHTML = `Shipping: $${this.shipping.toFixed(2)}`;
+        totalCost.innerHTML = `Total: $${this.orderTotal.toFixed(2)}`;
     } 
-
-    calculateItemSummary() {
-        this.calculateItemSubTotal();
-        this.calculateOrderTotal();
-    }
-
 }

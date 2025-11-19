@@ -313,6 +313,68 @@ button {
   }
 }
 
+
+/* Checkout Form */
+.checkout-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+  width: 50%;
+  min-width: 280px;
+}
+
+form {
+  font-family: var(--font-body);  
+  padding: 2rem;  
+}
+
+fieldset {
+  width: 90%;
+  margin: .5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;    
+}
+
+legend {
+  font-style: italic;
+  padding-bottom: 0.5rem;
+  margin-left: .5rem;
+} 
+
+label {
+  display: block;
+  padding: 0.5rem;
+}
+
+input[type=text] {
+  height: 40px;
+  width: 200px;
+}
+
+input[type="submit"] {
+  border: none;
+  background: black;
+  color: #fff;
+  border-radius: 6px;
+  padding: .8rem;
+  width: 96%;
+  max-width: 300px;
+  margin: 2rem auto;
+  box-shadow: 1px 1px 4px #999;  
+  font-family: var(--font-body), sans-serif;
+  font-size: 1rem;
+  display: block;
+}
+
+#submit-button {
+  display: flex;
+  align-items: center;
+}
+
+/* Footer */
 footer {
   font-size: var(--small-font);
   padding: 1em;
