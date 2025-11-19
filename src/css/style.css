@@ -297,6 +297,11 @@ button {
   text-align: right;
 }
 
+/* Checkout Button */
+.checkout-button {
+  margin: 1rem;
+}
+
 @media screen and (min-width: 500px) {
   body {
     max-width: 1080px;
