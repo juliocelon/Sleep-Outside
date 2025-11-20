@@ -319,14 +319,25 @@ button {
 }
 
 
-/* Checkout Form */
-.checkout-form {
+/* Checkout Page */
+
+#form-and-totals {
+  display: grid;
+  grid-template-columns: 1fr, 1fr;
+}
+
+#order-summary {
+  grid-column: 2/3;
+}
+
+.form-section {
+  grid-column: 1/2;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: center; 
   margin-bottom: 2rem;
-  width: 50%;
+  width: 100%;
   min-width: 280px;
 }
 
@@ -335,8 +346,7 @@ form {
   padding: 2rem;  
 }
 
-fieldset {
-  width: 90%;
+fieldset {  
   margin: .5rem;
   display: flex;
   flex-direction: column;
@@ -357,6 +367,7 @@ label {
 input[type=text] {
   height: 40px;
   width: 200px;
+  font-size: var(--small-font);
 }
 
 input[type="submit"] {

@@ -1,4 +1,7 @@
 import { getLocalStorage } from "./utils.mjs";
+import ExternalServices from "./ExternalServices.mjs";
+
+const services = new ExternalServices();
 
 export default class CheckoutProcess {
     //Constructor
@@ -12,20 +15,47 @@ export default class CheckoutProcess {
         this.orderTotal = 0;
     }
 
+    //Methods
     init() {
         this.list = getLocalStorage(this.key);
         this.calculateItemSubTotal();
+    }
 
-        //Add event listener to update taxes, shipping, and order total when a zipcode is entered.
-        const zipcodeInput = document.querySelector('#zipcode');
-        if (zipcodeInput) {
-            zipcodeInput.addEventListener('change', () => {
-                this.calculateOrderTotal();
-            })
+    async checkout(form) {
+        //Get the form element data by the form name
+        const formElement = document.querySelector(form);
+        //Convert form data to JSON order object using formDataToJSON function
+        const formJSON = formDataToJSON(formElement);
+        
+        //Populate JSON order object with order Date, orderTotal, tax, shipping, list of items
+        //Timestamp for when checkout is submitted
+        const timestamp = new Date().toISOString();
+        
+        //Order Info
+        this.calculateOrderTotal(); //Ensures calculations are completed just before object is created
+
+        //Get Cart items
+        const cartItems = packageItems(this.list);
+
+        const checkoutObject = {
+            orderDate: timestamp,
+            ...formJSON, //pulls in all form fields automatically
+            items: cartItems,
+            orderTotal: this.orderTotal,
+            shipping: this.shipping,
+            tax: this.tax
+        };
+
+        //Save to server
+        try {
+            const response = await services.submitCheckout(checkoutObject);
+            console.log(response);
+            return response;
+        } catch (err) {
+            console.log(err);
         }
     }
 
-    //Methods
     calculateItemSubTotal() {
         const cartItems = this.list
         
@@ -48,11 +78,7 @@ export default class CheckoutProcess {
         
         //Calculate shipping, $10 for first item, $2 for each additional item              
         const numberItemsInCart = this.list.length;              
-        if (numberItemsInCart === 1) {
-            this.shipping = 10;
-        } else if (numberItemsInCart > 1) {
-            this.shipping = 10 + 2 * (numberItemsInCart - 1);
-        }
+        this.shipping = 10 + 2 * (numberItemsInCart - 1);        
 
         //Calculate order total
         this.orderTotal = this.itemTotal + this.tax + this.shipping;
@@ -72,3 +98,36 @@ export default class CheckoutProcess {
         totalCost.innerHTML = `Total: $${this.orderTotal.toFixed(2)}`;
     } 
 }
+
+
+
+//Global Functions
+
+//Function that will be used to prepare the order items list
+function packageItems(items) {
+    //Products in Cart    
+    const cartArray = items.map(item => ({
+        id: item.Id,
+        name: item.Name,
+        price: item.FinalPrice,
+        quantity: item.quantity
+    }));
+
+    return cartArray;
+};
+
+
+//Function to convert data entered in the form to a JSON
+function formDataToJSON(formElement) {
+    //Data from form   
+    const formData = new FormData(formElement);
+    const convertedJSON = {};
+    
+    //For each input in the form, add it to the JSON object as a key:value pair
+    formData.forEach(function (value, key) {
+        convertedJSON[key] = value;
+    });
+
+    return convertedJSON;
+};
+
