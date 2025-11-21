@@ -387,6 +387,14 @@ input[type="submit"] {
   align-items: center;
 }
 
+input[type=text]:valid {
+  border-right: 4px solid green;
+}
+
+input[type=text]:invalid {
+  border-right: 4px solid red;
+}
+
 /* Footer */
 footer {
   font-size: var(--small-font);

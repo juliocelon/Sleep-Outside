@@ -17,7 +17,7 @@ export default class CheckoutProcess {
 
     //Methods
     init() {
-        this.list = getLocalStorage(this.key);
+        this.list = getLocalStorage(this.key) || [];
         this.calculateItemSubTotal();
     }
 
@@ -45,12 +45,19 @@ export default class CheckoutProcess {
             shipping: this.shipping,
             tax: this.tax
         };
-
-        //Save to server
+        
+        //Save to server, have try/catch to catch any errors
         try {
             const response = await services.submitCheckout(checkoutObject);
             console.log(response);
+
+            //Clear the cart        
+            localStorage.removeItem('so-cart');
+            //Go to success page
+            window.location.href = "/checkout/success.html";
+
             return response;
+            
         } catch (err) {
             console.log(err);
         }
@@ -58,14 +65,14 @@ export default class CheckoutProcess {
 
     calculateItemSubTotal() {
         const cartItems = this.list
-        
+
         //Create an array of all the prices and quantities of the items in the cart
         const totalComponents = cartItems.map(item => ({
             price: item.FinalPrice,
             quantity: item.quantity
         }));
         //Sum the subtotals (price*quantity) for all the items in the cart using reduce
-        this.itemTotal = totalComponents.reduce((sum, item) => sum + (item.price * item.quantity), 0); //0 is initial value of the accumulator
+        this.itemTotal = totalComponents.reduce((sum, item) => sum + (item.price * item.quantity), 0); //0 is initial value of the accumulator  
         
         //Display the subtotal
         const subTotal = document.querySelector(`${this.outputSelector} #checkout-subtotal`);
