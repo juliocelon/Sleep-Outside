@@ -42,11 +42,13 @@ function renderCartContents() {
     .insertAdjacentHTML("beforeend", cartTotalElement);
 }
 
-function cartItemTemplate(item) {
+
+
+function cartItemTemplate(item) {  
   const newItem = `<li class="cart-card divider">
   <a href="/product_pages/?product=${item.Id}" class="cart-card__image">
     <img
-      src="${item.Image}"
+      src="${item.Images.PrimarySmall}"
       alt="${item.Name}"
     />
   </a>
@@ -59,6 +61,12 @@ function cartItemTemplate(item) {
 </li>`;
   return newItem;
 }
+
+
+//Event Listener to go to Checkout Page
+document.getElementById("checkout").addEventListener("click", () => {
+  window.location.href = "/checkout/index.html";
+});
 
 //Use this line to test that the total disappears when the cart is empty--it empties the cart
 // localStorage.removeItem('so-cart');

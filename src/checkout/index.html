@@ -8,8 +8,8 @@
 
     <title>Sleep Outside | Checkout</title>
 
-    <link rel="stylesheet" href="css/style.css" />
-    <script src="../js/checkout.js" type="module"></script>
+    <link rel="stylesheet" href="/css/style.css" />
+    <script src="/js/checkout.js" type="module"></script>
   </head>
 
   <body>
@@ -19,6 +19,46 @@
       <section class="products">
         <h2>Review & Place your Order</h2>
       </section>
+      <div id="form-and-totals">
+        <section class="form-section">
+          <h3>Enter Your Information</h3>
+          <form id="checkout-form">        
+              <fieldset>
+                <legend>Customer Name</legend>
+                <label>First Name: <input type="text" name="fname" pattern="[A-Za-z]+" required> <!--Letters Only--></label>            
+                <label>Last Name: <input type="text" name="lname" pattern="[A-Za-z]+" required> <!--Letters Only--></label>            
+              </fieldset>
+
+              <fieldset>
+                <legend>Address</legend>
+                <label>Street Address: <input type="text" name="street" required></label>            
+                <label>City: <input type="text" name="city" pattern="[A-Za-z]+" required> <!--Letters Only--></label>            
+                <label>State: <input type="text" name="state" pattern="[A-Z]{2}" title="Enter two capital letters (ex. UT)" placeholder="UT" required> <!--2 Capitalized Letters Only--></label>            
+                <label>Zip Code: <input type="text" id="zipcode" name="zip" pattern="\d{5}" title="Enter 5 digit zipcode" placeholder="12345" required> <!--5 Numbers Only--></label>            
+            </fieldset>
+
+            <fieldset>           
+                <legend>Payment Information</legend>
+                <label>Credit Card Number: <input type="text" name="cardNumber" pattern="\d{13,19}" required></label>            
+                <label>Expiration Date: <input type="text" name="expiration" pattern="(0[1-9]|1[0-2])\/\d{2}" placeholder="MM/YY" required></label>            
+                <label>Security Code: <input type="text" name="code" pattern="\d{3,4}" required></label>            
+              </fieldset>
+
+            <div id="submit-button">
+              <input type="submit" id="checkout-submit" value="Submit Payment">
+            </div>
+
+          </form>
+        </section>
+
+        <div id="order-summary">
+          <h3>Order Summary</h3>      
+          <p id="checkout-subtotal"></p>
+          <p id="checkout-taxes">Taxes: </p>
+          <p id="checkout-shipping">Shipping: </p>
+          <p id="checkout-total">Total:</p>
+        </div>
+      </div>
     </main>
 
     <footer class="footer" id="checkout-footer"></footer>
