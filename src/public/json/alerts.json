@@ -1,12 +1,12 @@
 [
   {
-    "message":"This is a test!",
-    "backgroundColor":"purple",
-    "color":"black"
+    "message": "This is a test!",
+    "backgroundColor": "purple",
+    "color": "black"
   },
   {
-    "message":"I'm still a test alert",
-    "backgroundColor":"green",
-    "color":"white"
+    "message": "I'm still a test alert",
+    "backgroundColor": "green",
+    "color": "white"
   }
 ]

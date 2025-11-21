@@ -10,13 +10,8 @@ const category = getParam('category');
 //Create an instance of the ExternalServices class
 const dataSource = new ExternalServices();
 //Pull element from HTML document where the products will be shown
-const listElement = document.querySelector('.product-list');
+const listElement = document.querySelector(".product-list");
 //Create an instance of the ProductList class and send it the correct information
 const myList = new ProductList(category, dataSource, listElement);
 //Call init function to show the products
 myList.init();
-
-
-
-
-

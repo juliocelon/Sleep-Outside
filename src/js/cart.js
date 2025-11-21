@@ -8,34 +8,38 @@ function renderCartContents() {
   // console.log(cartItems);
 
   //Check to see if anything is in the cart
-  if (!cartItems) { //means if cartItems is falsy (falsy means false, 0, null, empty string, undefined, NaN)
+  if (!cartItems) {
+    //means if cartItems is falsy (falsy means false, 0, null, empty string, undefined, NaN)
     //If nothing is in the cart, return an empty string
-    document.querySelector(".product-list").innerHTML = '';
+    document.querySelector(".product-list").innerHTML = "";
     return;
   }
-
 
   //Create cards for items in cart
   const htmlItems = cartItems.map((item) => cartItemTemplate(item));
   document.querySelector(".product-list").innerHTML = htmlItems.join("");
 
-
   //TOTAL:
   //Hide the cart-total div if the cart is empty
-  const cartFooter = document.querySelector('.cart-footer-total');
-  cartFooter.classList.remove('hide');
-  
+  const cartFooter = document.querySelector(".cart-footer-total");
+  cartFooter.classList.remove("hide");
+
   //Create an array of all the prices and quantities of the items in the cart
-  const totalComponents = cartItems.map(item => ({
+  const totalComponents = cartItems.map((item) => ({
     price: item.FinalPrice,
-    quantity: item.quantity
+    quantity: item.quantity,
   }));
   //Sum the subtotals (price*quantity) for all the items in the cart using reduce
-  const cartTotal = totalComponents.reduce((sum, item) => sum + (item.price * item.quantity), 0); //0 is initial value of the accumulator
+  const cartTotal = totalComponents.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0,
+  ); //0 is initial value of the accumulator
   //Create template literal
   const cartTotalElement = `$${cartTotal}`;
   //Insert into the cart index.html after the <p> element (Total: )
-  document.querySelector('.cart-total').insertAdjacentHTML("beforeend", cartTotalElement);
+  document
+    .querySelector(".cart-total")
+    .insertAdjacentHTML("beforeend", cartTotalElement);
 }
 
 
@@ -66,6 +70,5 @@ document.getElementById("checkout").addEventListener("click", () => {
 
 //Use this line to test that the total disappears when the cart is empty--it empties the cart
 // localStorage.removeItem('so-cart');
-
 
 renderCartContents();
