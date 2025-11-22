@@ -30,6 +30,30 @@ img {
   max-width: 100%;
 }
 
+/* For smaller screens, like mobile */
+@media (max-width: 600px) {
+    img {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* For medium screens (e.g., tablets) */
+@media (min-width: 601px) and (max-width: 1024px) {
+    img {
+        width: 100%;
+        height: auto;
+    }
+}
+
+/* For larger screens (desktops and larger tablets) */
+@media (min-width: 1025px) {
+    img {
+        width: 100%;
+        height: auto;
+    }
+}
+
 header {
   display: flex;
   justify-content: space-between;
