@@ -361,7 +361,7 @@ label {
   padding: 0.5rem;
 }
 
-input[type=text] {
+input[type=text], input[type=email] {
   height: 40px;
   width: 200px;
   font-size: var(--small-font);
@@ -387,12 +387,31 @@ input[type="submit"] {
   align-items: center;
 }
 
-input[type=text]:valid {
+input[type=text]:valid,
+input[type=email]:valid {
   border-right: 4px solid green;
 }
 
-input[type=text]:invalid {
+input[type=text]:invalid,
+input[type=email]:invalid {
   border-right: 4px solid red;
+}
+
+/* Newsletter Modal */
+#newsletter-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%); /* Shift back by half of its own width/height */
+  padding: 2rem;
+}
+
+#newsletter-modal::backdrop {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+#newsletter-modal-header {
+  margin-bottom: 1rem;
 }
 
 /* Footer */
