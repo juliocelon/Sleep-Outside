@@ -1,12 +1,15 @@
 const baseURL = import.meta.env.VITE_SERVER_URL;
 
 async function convertToJson(res) {
-  const data = await res.json();
+  //Convert response body to JSON
+  const jsonResponse = await res.json();
+  
+  //Check if the response is ok
   if (res.ok) {
-    return data;
+    return jsonResponse;
   } else {
-    throw { name: "servicesError", message: data };
-  }
+    throw { name: 'servicesError', message: jsonResponse };
+  }    
 }
 
 export default class ExternalServices {
