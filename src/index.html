@@ -80,6 +80,23 @@
           </li>
         </ul>
       </section>
+
+      <section class="newsletter">
+        <h2 class="divider">Newsletter Sign-Up</h2>
+        <form id="newsletter-form">
+          <fieldset>
+            <legend>Enter Your Information: </legend>
+            <label>First Name: <input type="text" name="fname" pattern="[A-Za-z]+" required> <!--Letters Only--></label>
+            <label>Last Name: <input type="text" name="lname" pattern="[A-Za-z]+" required> <!--Letters Only--></label>
+            <label>E-mail: <input type="email" name="userEmail" required></label>
+            <input type="submit" id="newsletter-submit" value="Sign Up for Newsletter">
+          </fieldset>
+        </form>        
+        <dialog id="newsletter-modal">
+          <h3 id="newsletter-modal-header">Congrats! You will now receive the monthly newsletter!</h3>
+          <button id="close-modal">Close</button>
+        </dialog>        
+      </section>
     </main>
     <footer class="footer" id="main-footer"></footer>
   </body>
