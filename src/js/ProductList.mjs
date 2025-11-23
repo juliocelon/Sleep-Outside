@@ -1,4 +1,5 @@
 import { renderListWithTemplate } from './utils.mjs';
+import ExternalServices from './ExternalServices.mjs';
 
 // Add base path detection
 function getBasePath() {
@@ -130,7 +131,7 @@ function productCardTemplate(product) {
         <img
           src="${imagePath}"
           alt="${product.NameWithoutBrand}"
-          onerror="this.src='${basePath}public/images/noun_Tent_2517.svg'"
+          onerror="this.src='${basePath}/public/images/noun_Tent_2517.svg'"
         />
         <h3 class="card__brand">${product.Brand.Name}</h3>
         <h2 class="card__name">${product.NameWithoutBrand}</h2>
