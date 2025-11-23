@@ -1,7 +1,10 @@
-import { loadHeaderFooter, getLocalStorage, removeFromCart, setLocalStorage } from "./utils.mjs";
+import { loadHeaderFooter, getLocalStorage, removeFromCart, setLocalStorage, updateCartIcon } from "./utils.mjs";
 
 // Load dynamic header and footer
-loadHeaderFooter();
+loadHeaderFooter().then(() => {
+  // Update cart icon after header is loaded
+  updateCartIcon();
+});
 
 function renderCartContents() {
   const cartItems = getLocalStorage("so-cart");
@@ -12,7 +15,7 @@ function renderCartContents() {
     document.querySelector(".product-list").innerHTML = `
       <li class="empty-cart">
         <p>Your cart is empty</p>
-        <a href="../">Continue Shopping</a>
+        <a href="../index.html">Continue Shopping</a>
       </li>
     `;
     // Clear any existing totals
@@ -24,15 +27,6 @@ function renderCartContents() {
   // Handle single item (convert to array)
   const itemsArray = Array.isArray(cartItems) ? cartItems : [cartItems];
   
-  // Log image data for first item to debug
-  if (itemsArray.length > 0) {
-    console.log('🖼️ First cart item image data:', {
-      Image: itemsArray[0].Image,
-      Images: itemsArray[0].Images,
-      Name: itemsArray[0].Name
-    });
-  }
-
   const htmlItems = itemsArray.map((item) => cartItemTemplate(item));
   document.querySelector(".product-list").innerHTML = htmlItems.join("");
 
@@ -47,19 +41,19 @@ function cartItemTemplate(item) {
   const quantity = item.quantity || 1;
   const totalPrice = (item.FinalPrice * quantity).toFixed(2);
 
-  // Use API image paths - the Images object contains different sizes
+  // Use API image paths
   const imagePath = item.Images?.PrimaryMedium || 
                    item.Images?.PrimaryLarge || 
                    item.Images?.PrimarySmall ||
-                   item.Image || // fallback to old field name
-                   '/images/placeholder.jpg';
+                   item.Image || 
+                   '../public/images/noun_Tent_2517.svg';
 
   const newItem = `<li class="cart-card divider">
     <a href="#" class="cart-card__image">
       <img
         src="${imagePath}"
         alt="${item.Name}"
-        onerror="this.src='/public/images/noun_Tent_2517.svg'"
+        onerror="this.src='../public/images/noun_Tent_2517.svg'"
       />
     </a>
     <a href="#">
@@ -87,9 +81,16 @@ function calculateCartTotals() {
     return total + (item.FinalPrice * quantity);
   }, 0);
   
-  const taxRate = 0.08; // 8% tax
+  const taxRate = 0.06; // 6% tax as required
   const tax = subtotal * taxRate;
-  const shipping = subtotal > 0 ? 5.99 : 0; // $5.99 shipping
+  
+  // Shipping: $10 for first item + $2 for each additional item
+  const totalItems = itemsArray.reduce((total, item) => {
+    return total + (item.quantity || 1);
+  }, 0);
+  
+  const shipping = totalItems > 0 ? 10 + (totalItems - 1) * 2 : 0;
+  
   const grandTotal = subtotal + tax + shipping;
   
   return {

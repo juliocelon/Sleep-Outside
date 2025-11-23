@@ -1,4 +1,5 @@
 import { getCartCount, loadHeaderFooter } from "./utils.mjs";
+import Newsletter from './newsletter.mjs';
 
 // Function to detect GitHub Pages environment
 function getBasePath() {
@@ -133,4 +134,8 @@ document.addEventListener("DOMContentLoaded", async function () {
   // Fix existing links and update cart
   fixInternalLinks();
   updateCartIcon();
+
+  // Initialize newsletter
+  new Newsletter();
 });
+

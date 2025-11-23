@@ -28,4 +28,36 @@
       />
     </svg>
   </a>
+  <button class="newsletter-btn" id="newsletterBtn">Newsletter</button>
+</nav>
+
+<!-- Newsletter Modal -->
+<div class="newsletter-modal" id="newsletterModal">
+  <div class="modal-content">
+    <button class="close-btn" id="closeNewsletter">&times;</button>
+    <h2>Join Our Adventure Newsletter</h2>
+    <p>Get exclusive deals, camping tips, and new product updates delivered to your inbox!</p>
+    <form id="newsletterForm" class="newsletter-form">
+      <div class="form-group">
+        <label for="newsletterName">Name</label>
+        <input type="text" id="newsletterName" name="name" placeholder="Your name" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label for="newsletterEmail">Email *</label>
+        <input type="email" id="newsletterEmail" name="email" required placeholder="your@email.com" autocomplete="email">
+        <div class="error-message" id="newsletterEmail-error"></div>
+      </div>
+      <div class="form-group checkbox-group">
+        <input type="checkbox" id="newsletterConsent" name="consent" required autocomplete="off">
+        <label for="newsletterConsent">I agree to receive marketing emails and updates</label>
+        <div class="error-message" id="newsletterConsent-error"></div>
+      </div>
+      <button type="submit" class="subscribe-btn">
+        <span class="btn-text">Subscribe to Newsletter</span>
+        <span class="btn-loading" style="display: none;">Subscribing...</span>
+      </button>
+    </form>
+    <div class="newsletter-message" id="newsletterMessage"></div>
+  </div>
+</div>
 </div>
