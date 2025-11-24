@@ -1,19 +1,31 @@
-// Smart basePath detection for all environments
+// Robust basePath detection for all environments
 function getBasePath() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  // GitHub Pages detection - exact match for your repository
-  if (hostname === 'oseimacdonald.github.io' && pathname.includes('/Sleep-Outside/')) {
-    return '/Sleep-Outside/';
-  }
+  console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
   
-  // Local development with Live Server (common ports)
-  if (hostname === '127.0.0.1' || hostname === 'localhost') {
+  // GitHub Pages detection - EXACT match
+  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
+    console.log('🔧 Detected GitHub Pages - using root path since we deploy from docs');
     return './';
   }
   
-  // Default fallback - use relative paths
+  // Local development from docs folder (production build testing)
+  if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
+      (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
+    console.log('🔧 Detected local docs folder - using relative paths');
+    return './';
+  }
+  
+  // Local development from src folder (default development)
+  if (hostname === '127.0.0.1' || hostname === 'localhost') {
+    console.log('🔧 Detected local development - using relative paths');
+    return '../';
+  }
+  
+  // Fallback for any other scenario
+  console.log('🔧 Using fallback base path');
   return './';
 }
 
