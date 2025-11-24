@@ -1,10 +1,28 @@
 import { setLocalStorage, getLocalStorage, getCartCount } from './utils.mjs';
 
+// UNIVERSAL basePath detection - works in ALL environments
 function getBasePath() {
-  if (window.location.hostname.includes('github.io')) {
-    return '/Sleep-Outside/';
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
+  
+  // GitHub Pages - docs folder is root
+  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('./')) {
+    return './';
   }
-  return '../';
+  
+  // Local development from docs folder
+  if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
+      (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
+    return './';
+  }
+  
+  // Local development from src folder
+  if (hostname === '127.0.0.1' || hostname === 'localhost') {
+    return '../';
+  }
+  
+  // Fallback
+  return './';
 }
 
 export default class ProductDetails {
@@ -81,7 +99,7 @@ export default class ProductDetails {
   }
 
   addBreadcrumbs() {
-    const basePath = window.location.hostname.includes('github.io') ? '/Sleep-Outside/' : '../';
+    const basePath = window.location.hostname.includes('github.io') ? './' : '../';
     
     const breadcrumbsHTML = `
       <nav class="breadcrumbs" aria-label="Breadcrumb">

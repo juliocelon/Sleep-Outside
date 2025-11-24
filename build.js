@@ -13,26 +13,36 @@ async function buildForProduction() {
   // Update ALL HTML files for production
   await updateAllHTMLFiles();
   
-  // Fix utils.mjs with robust basePath detection
-  await fixUtilsBasePath();
+  // Fix ALL JavaScript files with consistent basePath
+  await fixAllJavaScriptFiles();
   
   // Fix checkout page to load main.js
   await fixCheckoutPageScript();
   
   console.log('✅ Production build complete!');
   console.log('📁 Files are in the docs/ folder');
-  console.log('🌐 Works in both local development and GitHub Pages');
+  console.log('🌐 Test locally: npx serve docs/');
+  console.log('🚀 Then commit and push to GitHub');
 }
 
 async function updateAllHTMLFiles() {
-  const htmlFiles = await findHTMLFiles('docs');
+  const htmlFiles = await findFiles('docs', '.html');
   
   for (const file of htmlFiles) {
     await updateHTMLFile(file);
   }
 }
 
-async function findHTMLFiles(dir) {
+async function fixAllJavaScriptFiles() {
+  const jsFiles = await findFiles('docs', '.mjs');
+  const jsFiles2 = await findFiles('docs', '.js');
+  
+  for (const file of [...jsFiles, ...jsFiles2]) {
+    await fixJavaScriptFile(file);
+  }
+}
+
+async function findFiles(dir, extension) {
   let results = [];
   const items = await fs.readdir(dir);
   
@@ -41,8 +51,8 @@ async function findHTMLFiles(dir) {
     const stat = await fs.stat(itemPath);
     
     if (stat.isDirectory()) {
-      results = results.concat(await findHTMLFiles(itemPath));
-    } else if (item.endsWith('.html')) {
+      results = results.concat(await findFiles(itemPath, extension));
+    } else if (item.endsWith(extension)) {
       results.push(itemPath);
     }
   }
@@ -125,62 +135,62 @@ function updateHTMLPaths(content, basePath, filePath) {
     .replace(/href="\/product_pages\//g, `href="${basePath}product_pages/`);
 }
 
-async function fixUtilsBasePath() {
-  const utilsPath = 'docs/js/utils.mjs';
-  if (await fs.pathExists(utilsPath)) {
-    let content = await fs.readFile(utilsPath, 'utf8');
-    
-    // Fix the basePath detection
-    const robustBasePath = `// Robust basePath detection for all environments
+async function fixJavaScriptFile(filePath) {
+  let content = await fs.readFile(filePath, 'utf8');
+  
+  console.log(`🔧 Fixing JavaScript file: ${filePath}`);
+  
+  // Only fix files that actually have getBasePath function
+  if (content.includes('getBasePath')) {
+    const universalBasePath = `// UNIVERSAL basePath detection - works in ALL environments
 function getBasePath() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
-  
-  // GitHub Pages detection - deploying from docs folder
+  // GitHub Pages - docs folder is root
   if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
-    console.log('🔧 Detected GitHub Pages - using root path since we deploy from docs');
     return './';
   }
   
-  // Local development from docs folder (production build testing)
+  // Local development from docs folder
   if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
       (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
-    console.log('🔧 Detected local docs folder - using relative paths');
     return './';
   }
   
-  // Local development from src folder (default development)
+  // Local development from src folder
   if (hostname === '127.0.0.1' || hostname === 'localhost') {
-    console.log('🔧 Detected local development - using relative paths');
     return '../';
   }
   
-  // Fallback for any other scenario
-  console.log('🔧 Using fallback base path');
+  // Fallback
   return './';
-}
+}`;
 
-const basePath = getBasePath();`;
-
-    // Replace basePath section
-    const basePathRegex = /(\/\/.*basePath.*|const basePath.*|function getBasePath[\s\S]*?const basePath.*?;)/;
+    // More precise regex to match getBasePath function without breaking syntax
+    const basePathRegex = /function\s+getBasePath\s*\(\s*\)\s*\{[\s\S]*?\n\}/;
+    
     if (content.match(basePathRegex)) {
-      content = content.replace(basePathRegex, robustBasePath);
+      content = content.replace(basePathRegex, universalBasePath);
+      console.log(`✅ Fixed getBasePath() in: ${filePath}`);
     }
+  }
 
-    // CRITICAL: Fix the hardcoded GitHub Pages path in loadHeaderFooter
+  // Fix hardcoded paths more carefully
+  content = content.replace(/['"]\/Sleep-Outside\/src\/['"]/g, `'./'`);
+  content = content.replace(/['"]\/Sleep-Outside\/['"]/g, `'./'`);
+  
+  // Fix template paths in utils.mjs specifically
+  if (filePath.includes('utils.mjs')) {
     content = content.replace(
       /if \(isGitHubPages\) \{\s*\/\/ Production - GitHub Pages\s*basePath = '\/Sleep-Outside\/src';/g,
       `if (isGitHubPages) {
   // Production - GitHub Pages (docs folder is root)
   basePath = './';`
     );
-
-    await fs.writeFile(utilsPath, content);
-    console.log('✅ Fixed utils.mjs - removed hardcoded /Sleep-Outside/src paths');
   }
+
+  await fs.writeFile(filePath, content);
 }
 
 async function fixCheckoutPageScript() {

@@ -2,23 +2,28 @@ import { renderListWithTemplate } from './utils.mjs';
 import ExternalServices from './ExternalServices.mjs';
 
 // Add base path detection
+// UNIVERSAL basePath detection - works in ALL environments
 function getBasePath() {
-  console.log('🔄 getBasePath() called');
-  console.log('📍 Current pathname:', window.location.pathname);
-  console.log('📍 Hostname:', window.location.hostname);
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
   
-  if (window.location.hostname.includes('github.io')) {
-    console.log('🌐 GitHub Pages detected, returning:', '/Sleep-Outside/');
-    return '/Sleep-Outside/';
+  // GitHub Pages - docs folder is root
+  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('./')) {
+    return './';
   }
   
-  // If we're on the product listing page, we need to go up one level to reach product_pages
-  if (window.location.pathname.includes('/product_listing/')) {
-    console.log('📁 Product listing page detected, returning:', '../');
+  // Local development from docs folder
+  if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
+      (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
+    return './';
+  }
+  
+  // Local development from src folder
+  if (hostname === '127.0.0.1' || hostname === 'localhost') {
     return '../';
   }
   
-  console.log('🏠 Default case, returning:', './');
+  // Fallback
   return './';
 }
 
