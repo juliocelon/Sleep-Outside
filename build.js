@@ -70,19 +70,23 @@ function updateHTMLPaths(content, basePath, filePath) {
   const isPartial = filePath.includes('partials');
   
   if (isPartial) {
-    // For partials, use root-relative paths since they're included in different locations
+    // For partials - use consistent relative paths that work everywhere
     return content
-      .replace(/href="\/docs\//g, 'href="/')
-      .replace(/src="\/docs\//g, 'src="/')
-      .replace(/href="\.\.\/\.\.\//g, 'href="./')
-      .replace(/href="\.\.\//g, 'href="./')
-      .replace(/src="\.\.\/\.\.\/public\//g, 'src="./public/')
-      .replace(/src="\.\.\/public\//g, 'src="./public/');
+      .replace(/href="\/Sleep-Outside\/src\//g, 'href="../')
+      .replace(/src="\/Sleep-Outside\/src\//g, 'src="../')
+      .replace(/href="\/docs\//g, 'href="../')
+      .replace(/src="\/docs\//g, 'src="../')
+      .replace(/href="\.\.\/\.\.\//g, 'href="../')
+      .replace(/href="\.\.\//g, 'href="../')
+      .replace(/src="\.\.\/\.\.\/public\//g, 'src="../public/')
+      .replace(/src="\.\.\/public\//g, 'src="../public/');
   }
   
   // For regular HTML files
   return content
-    // Remove any /docs/ references
+    // Remove any GitHub Pages src references
+    .replace(/href="\/Sleep-Outside\/src\//g, `href="${basePath}`)
+    .replace(/src="\/Sleep-Outside\/src\//g, `src="${basePath}`)
     .replace(/href="\/docs\//g, `href="${basePath}`)
     .replace(/src="\/docs\//g, `src="${basePath}`)
     
@@ -129,27 +133,33 @@ function getBasePath() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  // GitHub Pages detection - for your specific repository
-  if (hostname === 'oseimacdonald.github.io' && pathname.includes('/Sleep-Outside/')) {
-    return '/Sleep-Outside/';
+  console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
+  
+  // GitHub Pages detection - EXACT match
+  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
+    console.log('🔧 Detected GitHub Pages - using root path since we deploy from docs');
+    return './';
   }
   
-  // Local development with different servers
+  // Local development from docs folder (production build testing)
+  if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
+      (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
+    console.log('🔧 Detected local docs folder - using relative paths');
+    return './';
+  }
+  
+  // Local development from src folder (default development)
   if (hostname === '127.0.0.1' || hostname === 'localhost') {
-    // Check if we're running from docs folder (production build)
-    if (pathname.includes('/docs/') || pathname.endsWith('/docs')) {
-      return './';
-    }
-    // Development from src folder
+    console.log('🔧 Detected local development - using relative paths');
     return '../';
   }
   
-  // Default: assume we're at root level (GitHub Pages)
+  // Fallback for any other scenario
+  console.log('🔧 Using fallback base path');
   return './';
 }
 
-const basePath = getBasePath();
-console.log('🔧 Base path detected:', basePath, 'from hostname:', window.location.hostname, 'pathname:', window.location.pathname);`;
+const basePath = getBasePath();`;
 
     let content = await fs.readFile(utilsPath, 'utf8');
     
