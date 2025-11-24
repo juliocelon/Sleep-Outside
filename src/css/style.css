@@ -242,7 +242,7 @@ button {
   grid-column: 2;
 }
 
-.cart-card__color {
+.pcolor-name {
   grid-row: 2;
   grid-column: 2;
 }
@@ -255,6 +255,49 @@ button {
 .cart-card__price {
   grid-row: 2;
   grid-column: 3;
+}
+
+/* colors options */
+
+#colorOptions {
+    display: flex;
+    gap: 10px;
+    margin: 1rem 0;
+    width : 70%;
+}
+
+.color-swatch {
+    width: 40px;
+    height: 40px;
+    border-radius: 2px;
+    cursor: pointer;
+    object-fit: cover;
+    border: 2px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.color-swatch:hover {
+    transform: scale(1.1);
+}
+
+.color-swatch.selected {
+    border-color: #333;
+    box-shadow: 0 0 5px rgba(0,0,0,0.4);
+    transform: scale(1.1);
+}
+
+.product-color-info {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.color-image-product {
+    width: 50px;
+    height: auto;
+    border-radius: 4px;
+    object-fit: cover;
+    border: 1px solid #ccc;
 }
 
 /* Make each row in the cart the same */
@@ -361,7 +404,7 @@ label {
   padding: 0.5rem;
 }
 
-input[type=text], input[type=email] {
+input[type=text] {
   height: 40px;
   width: 200px;
   font-size: var(--small-font);
@@ -387,31 +430,12 @@ input[type="submit"] {
   align-items: center;
 }
 
-input[type=text]:valid,
-input[type=email]:valid {
+input[type=text]:valid {
   border-right: 4px solid green;
 }
 
-input[type=text]:invalid,
-input[type=email]:invalid {
+input[type=text]:invalid {
   border-right: 4px solid red;
-}
-
-/* Newsletter Modal */
-#newsletter-modal {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%); /* Shift back by half of its own width/height */
-  padding: 2rem;
-}
-
-#newsletter-modal::backdrop {
-  background-color: rgba(0, 0, 0, 0.5);
-}
-
-#newsletter-modal-header {
-  margin-bottom: 1rem;
 }
 
 /* Footer */
