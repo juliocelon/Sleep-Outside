@@ -1,3 +1,24 @@
+// Smart basePath detection for all environments
+function getBasePath() {
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
+  
+  // GitHub Pages detection - exact match for your repository
+  if (hostname === 'oseimacdonald.github.io' && pathname.includes('/Sleep-Outside/')) {
+    return '/Sleep-Outside/';
+  }
+  
+  // Local development with Live Server (common ports)
+  if (hostname === '127.0.0.1' || hostname === 'localhost') {
+    return './';
+  }
+  
+  // Default fallback - use relative paths
+  return './';
+}
+
+const basePath = getBasePath();
+
 // wrapper for querySelector...returns matching element
 export function qs(selector, parent = document) {
   return parent.querySelector(selector);

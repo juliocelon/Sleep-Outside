@@ -10,18 +10,18 @@ async function buildForProduction() {
   // Copy all src files to docs
   await fs.copy('src', 'docs');
   
-  // Update ALL HTML files for production
+  // Update ALL HTML files for production (relative paths for both environments)
   await updateAllHTMLFiles();
   
-  // Fix utils.mjs basePath to work in both local and GitHub Pages
+  // Fix utils.mjs with smart basePath detection
   await fixUtilsBasePath();
   
-  // Fix checkout page to load main.js (not main.mjs)
+  // Fix checkout page to load main.js
   await fixCheckoutPageScript();
   
   console.log('✅ Production build complete!');
   console.log('📁 Files are in the docs/ folder');
-  console.log('🌐 Works both locally and on GitHub Pages');
+  console.log('🌐 Works in both local development and GitHub Pages');
 }
 
 async function updateAllHTMLFiles() {
@@ -149,34 +149,45 @@ async function fixUtilsBasePath() {
   if (await fs.pathExists(utilsPath)) {
     let content = await fs.readFile(utilsPath, 'utf8');
     
-    // Create a basePath that works in BOTH environments
-    const universalBasePath = `// Universal basePath that works in both development and production
+    // Create a robust basePath that works in ALL environments
+    const smartBasePath = `// Smart basePath detection for all environments
 function getBasePath() {
-  // Check if we're running on GitHub Pages
-  if (window.location.hostname === 'oseimacdonald.github.io') {
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
+  
+  // GitHub Pages detection - exact match for your repository
+  if (hostname === 'oseimacdonald.github.io' && pathname.includes('/Sleep-Outside/')) {
     return '/Sleep-Outside/';
   }
-  // Check if we're running locally with Live Server (typically port 5500)
-  if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+  
+  // Local development with Live Server (common ports)
+  if (hostname === '127.0.0.1' || hostname === 'localhost') {
     return './';
   }
-  // Default to relative path for any other environment
+  
+  // Default fallback - use relative paths
   return './';
 }
 
 const basePath = getBasePath();`;
     
-    // Replace the existing basePath logic
-    // First try to replace any existing dynamic basePath
-    if (content.includes('getBasePath')) {
-      content = content.replace(/function getBasePath[^]*?const basePath = getBasePath\(\);/s, universalBasePath);
+    // Check what type of basePath currently exists and replace it
+    if (content.includes('const basePath')) {
+      // Replace any existing basePath declaration
+      if (content.includes('function getBasePath')) {
+        // Replace existing dynamic basePath
+        content = content.replace(/function getBasePath[\s\S]*?const basePath = getBasePath\(\);/, smartBasePath);
+      } else {
+        // Replace simple basePath declaration
+        content = content.replace(/const basePath = '[^']*';/, smartBasePath);
+      }
     } else {
-      // Otherwise replace the simple basePath declaration
-      content = content.replace(/const basePath = '[^']*';/, universalBasePath);
+      // Add basePath if it doesn't exist (shouldn't happen, but just in case)
+      content = smartBasePath + '\n\n' + content;
     }
     
     await fs.writeFile(utilsPath, content);
-    console.log('✅ Fixed utils.mjs basePath - now works in both development and production');
+    console.log('✅ Fixed utils.mjs basePath - smart detection for all environments');
   }
 }
 
@@ -210,11 +221,6 @@ async function fixCheckoutPageScript() {
     
     await fs.writeFile(checkoutHTML, content);
     console.log('✅ Fixed checkout page script reference');
-    
-    // Show the final script tags
-    const finalScripts = content.match(/<script[^>]*>/g) || [];
-    console.log('📄 Final script tags in checkout page:');
-    finalScripts.forEach(tag => console.log(`   ${tag}`));
   }
 }
 
