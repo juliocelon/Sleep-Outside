@@ -13,7 +13,7 @@ async function buildForProduction() {
   // Update ALL HTML files for production
   await updateAllHTMLFiles();
   
-  // Fix utils.mjs basePath
+  // Fix utils.mjs basePath to work in both local and GitHub Pages
   await fixUtilsBasePath();
   
   // Fix checkout page to load main.js (not main.mjs)
@@ -21,6 +21,7 @@ async function buildForProduction() {
   
   console.log('✅ Production build complete!');
   console.log('📁 Files are in the docs/ folder');
+  console.log('🌐 Works both locally and on GitHub Pages');
 }
 
 async function updateAllHTMLFiles() {
@@ -148,15 +149,24 @@ async function fixUtilsBasePath() {
   if (await fs.pathExists(utilsPath)) {
     let content = await fs.readFile(utilsPath, 'utf8');
     
-    // Fix ONLY the basePath - minimal change to avoid breaking anything
-    const basePathRegex = /const basePath = '[^']*';/;
+    // Replace the basePath with a dynamic one that works in both environments
+    const dynamicBasePath = `// Dynamic basePath for both local and GitHub Pages
+function getBasePath() {
+  // Check if we're on GitHub Pages
+  if (window.location.hostname.includes('github.io')) {
+    return '/Sleep-Outside/';
+  }
+  // Local development
+  return './';
+}
+
+const basePath = getBasePath();`;
     
-    if (basePathRegex.test(content)) {
-      content = content.replace(basePathRegex, `const basePath = './';`);
-      console.log('✅ Fixed utils.mjs basePath');
-    }
+    // Replace the basePath line with the dynamic version
+    content = content.replace(/const basePath = '[^']*';/, dynamicBasePath);
     
     await fs.writeFile(utilsPath, content);
+    console.log('✅ Fixed utils.mjs basePath - now works on both local and GitHub Pages');
   }
 }
 
