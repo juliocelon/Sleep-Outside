@@ -128,6 +128,9 @@ function updateHTMLPaths(content, basePath, filePath) {
 async function fixUtilsBasePath() {
   const utilsPath = 'docs/js/utils.mjs';
   if (await fs.pathExists(utilsPath)) {
+    let content = await fs.readFile(utilsPath, 'utf8');
+    
+    // Fix the basePath detection
     const robustBasePath = `// Robust basePath detection for all environments
 function getBasePath() {
   const hostname = window.location.hostname;
@@ -135,7 +138,7 @@ function getBasePath() {
   
   console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
   
-  // GitHub Pages detection - EXACT match
+  // GitHub Pages detection - deploying from docs folder
   if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
     console.log('🔧 Detected GitHub Pages - using root path since we deploy from docs');
     return './';
@@ -161,20 +164,22 @@ function getBasePath() {
 
 const basePath = getBasePath();`;
 
-    let content = await fs.readFile(utilsPath, 'utf8');
-    
-    // Replace the entire basePath section
+    // Replace basePath section
     const basePathRegex = /(\/\/.*basePath.*|const basePath.*|function getBasePath[\s\S]*?const basePath.*?;)/;
-    
     if (content.match(basePathRegex)) {
       content = content.replace(basePathRegex, robustBasePath);
-    } else {
-      // Insert at the top of the file
-      content = robustBasePath + '\n\n' + content;
     }
-    
+
+    // CRITICAL: Fix the hardcoded GitHub Pages path in loadHeaderFooter
+    content = content.replace(
+      /if \(isGitHubPages\) \{\s*\/\/ Production - GitHub Pages\s*basePath = '\/Sleep-Outside\/src';/g,
+      `if (isGitHubPages) {
+  // Production - GitHub Pages (docs folder is root)
+  basePath = './';`
+    );
+
     await fs.writeFile(utilsPath, content);
-    console.log('✅ Fixed utils.mjs basePath - robust detection for all environments');
+    console.log('✅ Fixed utils.mjs - removed hardcoded /Sleep-Outside/src paths');
   }
 }
 

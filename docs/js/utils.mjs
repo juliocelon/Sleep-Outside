@@ -1,36 +1,3 @@
-// Robust basePath detection for all environments
-function getBasePath() {
-  const hostname = window.location.hostname;
-  const pathname = window.location.pathname;
-  
-  console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
-  
-  // GitHub Pages detection - EXACT match
-  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
-    console.log('🔧 Detected GitHub Pages - using root path since we deploy from docs');
-    return './';
-  }
-  
-  // Local development from docs folder (production build testing)
-  if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
-      (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
-    console.log('🔧 Detected local docs folder - using relative paths');
-    return './';
-  }
-  
-  // Local development from src folder (default development)
-  if (hostname === '127.0.0.1' || hostname === 'localhost') {
-    console.log('🔧 Detected local development - using relative paths');
-    return '../';
-  }
-  
-  // Fallback for any other scenario
-  console.log('🔧 Using fallback base path');
-  return './';
-}
-
-const basePath = getBasePath();
-
 // wrapper for querySelector...returns matching element
 export function qs(selector, parent = document) {
   return parent.querySelector(selector);
@@ -131,8 +98,8 @@ export async function loadHeaderFooter() {
     let basePath = '';
     
     if (isGitHubPages) {
-      // Production - GitHub Pages
-      basePath = '/Sleep-Outside/src';
+  // Production - GitHub Pages (docs folder is root)
+  basePath = './';
     } else {
       // Local development - use relative paths
       if (currentPath.includes('/cart/') || currentPath.includes('/checkout/') || currentPath.includes('/product_pages/') || currentPath.includes('/product_listing/')) {
