@@ -3,15 +3,20 @@ import ExternalServices from './ExternalServices.mjs';
 
 // Add base path detection
 // UNIVERSAL basePath detection - works in ALL environments
+// UNIVERSAL basePath detection - works in ALL environments
 function getBasePath() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
   console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
   
-  // GitHub Pages - docs folder is root
-  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('./')) {
-    console.log('🔧 Detected GitHub Pages - using root path');
+  // GitHub Pages detection - EXACT match for your repository
+  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
+    console.log('🔧 Detected GitHub Pages - using relative paths');
+    // On GitHub Pages, when in product_listing folder, we need to go up to root
+    if (pathname.includes('/product_listing/')) {
+      return '../';
+    }
     return './';
   }
   
@@ -19,17 +24,26 @@ function getBasePath() {
   if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
       (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
     console.log('🔧 Detected local docs folder - using relative paths');
+    if (pathname.includes('/product_listing/')) {
+      return '../';
+    }
     return './';
   }
   
   // Local development from src folder
   if (hostname === '127.0.0.1' || hostname === 'localhost') {
     console.log('🔧 Detected local development - using relative paths');
+    if (pathname.includes('/product_listing/')) {
+      return '../';
+    }
     return '../';
   }
   
-  // Fallback
-  console.log('🔧 Using fallback base path');
+  // Fallback - handle subdirectories properly
+  console.log('🔧 Using fallback base path detection');
+  if (pathname.includes('/product_listing/') || pathname.includes('/cart/') || pathname.includes('/checkout/') || pathname.includes('/product_pages/')) {
+    return '../';
+  }
   return './';
 }
 
@@ -148,8 +162,8 @@ function productCardTemplate(product) {
         <h2 class="card__name">${product.NameWithoutBrand}</h2>
         ${hasDiscount ? `<div class="discount-badge">Save ${discountPercent}%</div>` : ''}
         <div class="price-container">
-          ${hasDiscount ? `<span class="original-price">${product.SuggestedRetailPrice.toFixed(2)}</span>` : ''}
-          <p class="product-card__price">${product.FinalPrice}</p>
+          ${hasDiscount ? `<span class="original-price">$${product.SuggestedRetailPrice.toFixed(2)}</span>` : ''}
+          <p class="product-card__price">$${product.FinalPrice}</p>
         </div>
       </a>
     </li>
