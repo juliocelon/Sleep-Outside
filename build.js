@@ -149,24 +149,34 @@ async function fixUtilsBasePath() {
   if (await fs.pathExists(utilsPath)) {
     let content = await fs.readFile(utilsPath, 'utf8');
     
-    // Replace the basePath with a dynamic one that works in both environments
-    const dynamicBasePath = `// Dynamic basePath for both local and GitHub Pages
+    // Create a basePath that works in BOTH environments
+    const universalBasePath = `// Universal basePath that works in both development and production
 function getBasePath() {
-  // Check if we're on GitHub Pages
-  if (window.location.hostname.includes('github.io')) {
+  // Check if we're running on GitHub Pages
+  if (window.location.hostname === 'oseimacdonald.github.io') {
     return '/Sleep-Outside/';
   }
-  // Local development
+  // Check if we're running locally with Live Server (typically port 5500)
+  if (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost') {
+    return './';
+  }
+  // Default to relative path for any other environment
   return './';
 }
 
 const basePath = getBasePath();`;
     
-    // Replace the basePath line with the dynamic version
-    content = content.replace(/const basePath = '[^']*';/, dynamicBasePath);
+    // Replace the existing basePath logic
+    // First try to replace any existing dynamic basePath
+    if (content.includes('getBasePath')) {
+      content = content.replace(/function getBasePath[^]*?const basePath = getBasePath\(\);/s, universalBasePath);
+    } else {
+      // Otherwise replace the simple basePath declaration
+      content = content.replace(/const basePath = '[^']*';/, universalBasePath);
+    }
     
     await fs.writeFile(utilsPath, content);
-    console.log('✅ Fixed utils.mjs basePath - now works on both local and GitHub Pages');
+    console.log('✅ Fixed utils.mjs basePath - now works in both development and production');
   }
 }
 
