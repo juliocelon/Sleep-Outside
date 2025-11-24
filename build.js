@@ -16,6 +16,9 @@ async function buildForProduction() {
   // Fix ALL JavaScript files with consistent basePath
   await fixAllJavaScriptFiles();
   
+  // Fix product links in ProductList.mjs specifically
+  await fixProductLinks();
+  
   // Fix checkout page to load main.js
   await fixCheckoutPageScript();
   
@@ -147,23 +150,29 @@ function getBasePath() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
+  console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
+  
   // GitHub Pages - docs folder is root
   if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
+    console.log('🔧 Detected GitHub Pages - using root path');
     return './';
   }
   
   // Local development from docs folder
   if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
       (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
+    console.log('🔧 Detected local docs folder - using relative paths');
     return './';
   }
   
   // Local development from src folder
   if (hostname === '127.0.0.1' || hostname === 'localhost') {
+    console.log('🔧 Detected local development - using relative paths');
     return '../';
   }
   
   // Fallback
+  console.log('🔧 Using fallback base path');
   return './';
 }`;
 
@@ -191,6 +200,77 @@ function getBasePath() {
   }
 
   await fs.writeFile(filePath, content);
+}
+
+async function fixProductLinks() {
+  const productListPath = 'docs/js/ProductList.mjs';
+  
+  if (await fs.pathExists(productListPath)) {
+    let content = await fs.readFile(productListPath, 'utf8');
+    
+    console.log('🔧 Fixing product links in ProductList.mjs');
+    
+    // FIRST: Let's see what's actually in the file
+    console.log('📋 Current product card template:');
+    const productTemplateMatch = content.match(/function productCardTemplate[\s\S]*?\n\}/);
+    if (productTemplateMatch) {
+      console.log(productTemplateMatch[0]);
+    }
+    
+    // SECOND: Fix the product link generation completely
+    // Replace the entire productCardTemplate function with a corrected version
+    const correctedTemplate = `function productCardTemplate(product) {
+  const basePath = getBasePath();
+  console.log('🛒 Product card generated for:', product.NameWithoutBrand);
+  console.log('🔗 Base path used:', basePath);
+  console.log('🔗 Full product URL:', \`\${basePath}product_pages/index.html?product=\${product.Id}\`);
+  
+  // Use API image paths - the Images object contains different sizes
+  const imagePath = product.Images?.PrimaryMedium || 
+                   product.Images?.PrimaryLarge || 
+                   product.Images?.PrimarySmall ||
+                   '/images/placeholder.jpg';
+  
+  // Calculate discount if any
+  const hasDiscount = product.SuggestedRetailPrice > product.FinalPrice;
+  const discountPercent = hasDiscount 
+    ? Math.round(((product.SuggestedRetailPrice - product.FinalPrice) / product.SuggestedRetailPrice) * 100)
+    : 0;
+
+  return \`
+    <li class="product-card">
+      <a href="\${basePath}product_pages/index.html?product=\${product.Id}">
+        <img
+          src="\${imagePath}"
+          alt="\${product.NameWithoutBrand}"
+          onerror="this.src='\${basePath}public/images/noun_Tent_2517.svg'"
+        />
+        <h3 class="card__brand">\${product.Brand.Name}</h3>
+        <h2 class="card__name">\${product.NameWithoutBrand}</h2>
+        \${hasDiscount ? \`<div class="discount-badge">Save \${discountPercent}%</div>\` : ''}
+        <div class="price-container">
+          \${hasDiscount ? \`<span class="original-price">\$\${product.SuggestedRetailPrice.toFixed(2)}</span>\` : ''}
+          <p class="product-card__price">\$\${product.FinalPrice}</p>
+        </div>
+      </a>
+    </li>
+  \`;
+}`;
+
+    // Replace the productCardTemplate function
+    const templateRegex = /function productCardTemplate\(product\)[\s\S]*?\n\}/;
+    if (content.match(templateRegex)) {
+      content = content.replace(templateRegex, correctedTemplate);
+      console.log('✅ Replaced productCardTemplate function');
+    } else {
+      console.log('❌ Could not find productCardTemplate function to replace');
+    }
+
+    await fs.writeFile(productListPath, content);
+    console.log('✅ Fixed product links in ProductList.mjs');
+  } else {
+    console.log('❌ ProductList.mjs not found at:', productListPath);
+  }
 }
 
 async function fixCheckoutPageScript() {

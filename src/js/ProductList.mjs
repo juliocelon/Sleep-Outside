@@ -7,9 +7,10 @@ function getBasePath() {
   console.log('📍 Current pathname:', window.location.pathname);
   console.log('📍 Hostname:', window.location.hostname);
   
+  // GitHub Pages detection - deploying from docs folder
   if (window.location.hostname.includes('github.io')) {
-    console.log('🌐 GitHub Pages detected, returning:', '/Sleep-Outside/');
-    return '/Sleep-Outside/';
+    console.log('🌐 GitHub Pages detected, returning:', './');
+    return './';
   }
   
   // If we're on the product listing page, we need to go up one level to reach product_pages
@@ -111,7 +112,7 @@ function productCardTemplate(product) {
   const basePath = getBasePath();
   console.log('🛒 Product card generated for:', product.NameWithoutBrand);
   console.log('🔗 Base path used:', basePath);
-  console.log('🔗 Full product URL:', `${basePath}product_pages/?product=${product.Id}`);
+  console.log('🔗 Full product URL:', `${basePath}product_pages/index.html?product=${product.Id}`);
   
   // Use API image paths - the Images object contains different sizes
   const imagePath = product.Images?.PrimaryMedium || 
@@ -127,11 +128,11 @@ function productCardTemplate(product) {
 
   return `
     <li class="product-card">
-      <a href="${basePath}product_pages/?product=${product.Id}">
+      <a href="${basePath}product_pages/index.html?product=${product.Id}">
         <img
           src="${imagePath}"
           alt="${product.NameWithoutBrand}"
-          onerror="this.src='${basePath}/public/images/noun_Tent_2517.svg'"
+          onerror="this.src='${basePath}public/images/noun_Tent_2517.svg'"
         />
         <h3 class="card__brand">${product.Brand.Name}</h3>
         <h2 class="card__name">${product.NameWithoutBrand}</h2>

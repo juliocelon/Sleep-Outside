@@ -7,23 +7,29 @@ function getBasePath() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
+  console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
+  
   // GitHub Pages - docs folder is root
   if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('./')) {
+    console.log('🔧 Detected GitHub Pages - using root path');
     return './';
   }
   
   // Local development from docs folder
   if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
       (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
+    console.log('🔧 Detected local docs folder - using relative paths');
     return './';
   }
   
   // Local development from src folder
   if (hostname === '127.0.0.1' || hostname === 'localhost') {
+    console.log('🔧 Detected local development - using relative paths');
     return '../';
   }
   
   // Fallback
+  console.log('🔧 Using fallback base path');
   return './';
 }
 
