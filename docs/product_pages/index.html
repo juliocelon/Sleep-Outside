@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sleep Outside | Product Details</title>
+    
+    <script type="module">
+      // Determine base path
+      const isGitHubPages = window.location.hostname.includes('github.io');
+      const basePath = isGitHubPages ? '/Sleep-Outside/src' : '..';
+      
+      // Load CSS
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `${basePath}/css/style.css`;
+      document.head.appendChild(link);
+      
+      // Import your existing product module directly
+      import('../js/product.js');
+    </script>
+  </head>
+
+  <body>
+    <header class="divider" id="main-header"></header>
+
+    <main class="divider">
+      <!-- Product details will be dynamically inserted here -->
+    </main>
+
+    <footer id="main-footer"></footer>
+  </body>
+</html>
