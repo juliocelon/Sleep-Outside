@@ -42,26 +42,47 @@ function renderCartContents() {
     .insertAdjacentHTML("beforeend", cartTotalElement);
 }
 
+function cartItemTemplate(item) {
+  let selectedColor;
 
+  if (item.selectedColor) {
+    selectedColor = item.selectedColor;
+  } else {
+    selectedColor = {
+      name: item.Colors[0].ColorName,
+      preview: item.Colors[0].ColorPreviewImageSrc
+    };
+  }
 
-function cartItemTemplate(item) {  
   const newItem = `<li class="cart-card divider">
-  <a href="/product_pages/?product=${item.Id}" class="cart-card__image">
-    <img
-      src="${item.Images.PrimarySmall}"
-      alt="${item.Name}"
-    />
-  </a>
-  <a href="/product_pages/?product=${item.Id}">
-    <h2 class="card__name">${item.Name}</h2>
-  </a>
-  <p class="cart-card__color">${item.Colors[0].ColorName}</p>
-  <p class="cart-card__quantity">qty: ${item.quantity}</p>
-  <p class="cart-card__price">$${item.FinalPrice}</p>
-</li>`;
+    <a href="/product_pages/?product=${item.Id}" class="cart-card__image">
+      <img
+        src="${item.Images.PrimarySmall}"
+        alt="${item.Name}"
+      />
+    </a>
+
+    <a href="/product_pages/?product=${item.Id}">
+      <h2 class="card__name">${item.Name}</h2>
+    </a>
+
+    <div class="product-color-info">
+      <p class="pcolor-name">
+        Color: <strong>${selectedColor.name}</strong>
+      </p>
+
+      <img 
+        class="color-image-product"
+        src="${selectedColor.preview}"
+        alt="${selectedColor.name}"
+      />
+    </div>
+
+    <p class="cart-card__quantity">qty: ${item.quantity}</p>
+    <p class="cart-card__price">$${item.FinalPrice}</p>
+  </li>`;
   return newItem;
 }
-
 
 //Event Listener to go to Checkout Page
 document.getElementById("checkout").addEventListener("click", () => {
