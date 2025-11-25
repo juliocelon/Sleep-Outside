@@ -7,20 +7,14 @@
     
     
     <script type="module">
-      // Determine base path for GitHub Pages vs local development
-      const isGitHubPages = window.location.hostname.includes('github.io');
-      const currentPath = window.location.pathname;
-      
-      let basePath = '../';
-      
       // Load CSS
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = `${basePath}css/style.css`;
+      link.href = '../css/style.css';
       document.head.appendChild(link);
       
       // Import your existing product module directly
-      import('${basePath}js/product.js');
+      import('../js/product.js');
     </script>
   </head>
 

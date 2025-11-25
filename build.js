@@ -443,23 +443,17 @@ async function fixProductPagesHTML() {
     
     console.log('🔧 Fixing product_pages/index.html inline script');
     
-    // COMPLETE REPLACEMENT of the inline script - more reliable approach
+    // SIMPLIFIED APPROACH - Use hardcoded paths that work for production
     const correctedScript = `
     <script type="module">
-      // Determine base path for GitHub Pages vs local development
-      const isGitHubPages = window.location.hostname.includes('github.io');
-      const currentPath = window.location.pathname;
-      
-      let basePath = '../';
-      
       // Load CSS
       const link = document.createElement('link');
       link.rel = 'stylesheet';
-      link.href = \`\${basePath}css/style.css\`;
+      link.href = '../css/style.css';
       document.head.appendChild(link);
       
       // Import your existing product module directly
-      import('\${basePath}js/product.js');
+      import('../js/product.js');
     </script>`;
 
     // Replace the entire script section
@@ -469,7 +463,7 @@ async function fixProductPagesHTML() {
     );
 
     await fs.writeFile(productPagesHTML, content);
-    console.log('✅ Fixed product_pages/index.html inline script - COMPLETE REPLACEMENT');
+    console.log('✅ Fixed product_pages/index.html inline script - SIMPLIFIED HARDCODED PATHS');
   } else {
     console.log('❌ product_pages/index.html not found at:', productPagesHTML);
   }
