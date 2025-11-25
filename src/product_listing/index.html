@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sleep Outside | Products</title>
     <link rel="stylesheet" href="../css/style.css" />
+    <!-- ONLY main.js - no other scripts -->
+    <script src="../js/main.js" type="module"></script>
   </head>
 
   <body>
@@ -14,42 +16,11 @@
       <section class="products">
         <h2 id="category-title">Products</h2>
         <ul class="product-list">
-          <!-- Products will be loaded here dynamically -->
+          <!-- Products will be loaded here dynamically by main.js -->
         </ul>
       </section>
     </main>
 
     <footer id="main-footer"></footer>
-
-    <script type="module">
-      import ExternalServices from '../js/ExternalServices.mjs';
-      import ProductList from '../js/ProductList.mjs';
-      import { loadHeaderFooter } from '../js/utils.mjs';
-
-      // Load header and footer
-      await loadHeaderFooter();
-
-      // Get category from URL parameter
-      const urlParams = new URLSearchParams(window.location.search);
-      const category = urlParams.get('category') || 'tents';
-      
-      console.log('Loading products for category:', category);
-      
-      // Update page title
-      document.getElementById('category-title').textContent = 
-        category.charAt(0).toUpperCase() + category.slice(1) + ' - Sleep Outside';
-      
-      // Initialize product list
-      const dataSource = new ExternalServices(category);
-      const listElement = document.querySelector('.product-list');
-      
-      if (listElement) {
-        const productList = new ProductList(category, dataSource, listElement);
-        await productList.init();
-        console.log('Products loaded successfully');
-      } else {
-        console.error('Product list element not found');
-      }
-    </script>
   </body>
 </html>
