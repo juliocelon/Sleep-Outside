@@ -31,10 +31,51 @@ async function buildForProduction() {
   // Fix checkout page to load main.js
   await fixCheckoutPageScript();
   
+  // ADD THIS: Ensure main.js is on ALL pages for newsletter functionality
+  await ensureMainJSOnAllPages();
+  
   console.log('✅ Production build complete!');
   console.log('📁 Files are in the docs/ folder');
   console.log('🌐 Test locally: npx serve docs/');
   console.log('🚀 Then commit and push to GitHub');
+}
+
+// ADD THIS FUNCTION: Ensure main.js is included on all pages
+async function ensureMainJSOnAllPages() {
+  const htmlFiles = await findFiles('docs', '.html');
+  
+  for (const file of htmlFiles) {
+    await addMainJSToPage(file);
+  }
+}
+
+// ADD THIS FUNCTION: Add main.js to individual pages
+async function addMainJSToPage(filePath) {
+  let content = await fs.readFile(filePath, 'utf8');
+  
+  // Skip if main.js is already included
+  if (content.includes('main.js') || content.includes('main.mjs')) {
+    console.log(`✅ main.js already in: ${filePath}`);
+    return;
+  }
+  
+  // Calculate relative path to js folder
+  const relativePath = path.relative('docs', path.dirname(filePath));
+  const depth = relativePath ? relativePath.split(path.sep).length : 0;
+  const jsPath = depth === 0 ? './js/' : '../'.repeat(depth) + 'js/';
+  
+  console.log(`📄 Adding main.js to: ${filePath} (path: ${jsPath}main.js)`);
+  
+  // Add main.js script before closing body tag
+  const mainJSScript = `  <script type="module" src="${jsPath}main.js"></script>\n</body>`;
+  
+  if (content.includes('</body>')) {
+    content = content.replace('</body>', mainJSScript);
+    await fs.writeFile(filePath, content);
+    console.log(`✅ Added main.js to: ${filePath}`);
+  } else {
+    console.log(`❌ No </body> tag found in: ${filePath}`);
+  }
 }
 
 async function updateAllHTMLFiles() {
