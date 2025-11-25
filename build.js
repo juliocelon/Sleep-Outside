@@ -10,7 +10,7 @@ async function buildForProduction() {
   // Copy all src files to docs
   await fs.copy('src', 'docs');
   
-  // Update ALL HTML files for production
+  // Update ALL HTML files for production - WITH BETTER PATH FIXING
   await updateAllHTMLFiles();
   
   // Fix ALL JavaScript files with consistent basePath
@@ -101,7 +101,7 @@ function updateHTMLPaths(content, basePath, filePath) {
       .replace(/src="\.\.\/public\//g, 'src="../public/');
   }
   
-  // For regular HTML files
+  // For regular HTML files - MORE COMPREHENSIVE FIX
   return content
     // Remove any GitHub Pages src references - MORE COMPREHENSIVE
     .replace(/href="\/Sleep-Outside\/src\//g, `href="${basePath}`)
@@ -111,23 +111,26 @@ function updateHTMLPaths(content, basePath, filePath) {
     .replace(/href="\/src\//g, `href="${basePath}`)
     .replace(/src="\/src\//g, `src="${basePath}`)
     
-    // CSS paths - FIX SPECIFICALLY FOR PRODUCT PAGES
-    .replace(/href="\.\.\/css\//g, `href="${basePath}css/`)
+    // CSS paths - FIX SPECIFICALLY FOR ABSOLUTE PATHS
     .replace(/href="\/css\//g, `href="${basePath}css/`)
+    .replace(/href="\.\.\/css\//g, `href="${basePath}css/`)
     .replace(/href="css\//g, `href="${basePath}css/`)
     .replace(/href="src\/css\//g, `href="${basePath}css/`)
+    .replace(/href="\/Sleep-Outside\/css\//g, `href="${basePath}css/`)
     
     // JS paths
     .replace(/src="\.\.\/js\//g, `src="${basePath}js/`)
     .replace(/src="\/js\//g, `src="${basePath}js/`)
     .replace(/src="js\//g, `src="${basePath}js/`)
     .replace(/src="src\/js\//g, `src="${basePath}js/`)
+    .replace(/src="\/Sleep-Outside\/js\//g, `src="${basePath}js/`)
     
     // Image paths
     .replace(/src="\.\.\/public\//g, `src="${basePath}public/`)
     .replace(/src="\/public\//g, `src="${basePath}public/`)
     .replace(/src="public\//g, `src="${basePath}public/`)
     .replace(/src="src\/public\//g, `src="${basePath}public/`)
+    .replace(/src="\/Sleep-Outside\/public\//g, `src="${basePath}public/`)
     
     // Link paths
     .replace(/href="\.\.\/index\.html/g, `href="${basePath}index.html`)
