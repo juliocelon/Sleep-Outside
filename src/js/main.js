@@ -11,40 +11,67 @@ function getBasePath() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
   
-  console.log('🔧 Base path detection - hostname:', hostname, 'pathname:', pathname);
+  console.log('🔧 Environment detection - hostname:', hostname, 'pathname:', pathname);
   
-  // GitHub Pages detection
+  // 1. GitHub Pages Environment
   if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
-    console.log('🔧 Detected GitHub Pages - using relative paths');
-    // On GitHub Pages, when in subfolders, we need to go up to root
+    console.log('🔧 Detected GitHub Pages environment');
+    // GitHub Pages structure: /Sleep-Outside/
     if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
-      return '../';
+      return '../'; // From subdirectory to root
     }
-    return './';
+    return './'; // Already at root
   }
   
-  // Local development from docs folder (production build)
-  if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
-      (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
-    console.log('🔧 Detected local docs folder - using relative paths');
-    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
-      return '../';
+  // 2. Docs Environment (Production Build)
+  if ((hostname === '127.0.0.1' || hostname === 'localhost') && pathname.includes('/docs/')) {
+    console.log('🔧 Detected Docs environment (production build)');
+    // Docs structure: /docs/
+    if (pathname.includes('/docs/product_listing/') || pathname.includes('/docs/product_pages/') || pathname.includes('/docs/cart/') || pathname.includes('/docs/checkout/')) {
+      return '../'; // From subdirectory to docs root
     }
-    return './';
+    return './'; // Already at docs root
   }
   
-  // Local development from src folder
+  // 3. Src Environment (Development)
   if (hostname === '127.0.0.1' || hostname === 'localhost') {
-    console.log('🔧 Detected local src folder - using relative paths');
-    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
-      return '../';
+    console.log('🔧 Detected Src environment (development)');
+    // Src structure: /src/
+    if (pathname.includes('/src/product_listing/') || pathname.includes('/src/product_pages/') || pathname.includes('/src/cart/') || pathname.includes('/src/checkout/')) {
+      return '../'; // From src subdirectory to src root
     }
-    return './';
+    return './'; // Already at src root
   }
   
   // Fallback
   console.log('🔧 Using fallback base path detection');
   return './';
+}
+
+// Function to get correct path for specific pages
+function getPagePath(page) {
+  const basePath = getBasePath();
+  const currentPath = window.location.pathname;
+  
+  console.log(`🔧 Getting path for ${page} from:`, currentPath);
+  
+  // For GitHub Pages
+  if (window.location.hostname === 'oseimacdonald.github.io') {
+    return `${basePath}${page}/`;
+  }
+  
+  // For Docs environment
+  if (currentPath.includes('/docs/')) {
+    return `${basePath}${page}/`;
+  }
+  
+  // For Src environment
+  if (currentPath.includes('/src/')) {
+    return `${basePath}${page}/`;
+  }
+  
+  // Fallback
+  return `${basePath}${page}/`;
 }
 
 // Product listing handler
@@ -138,7 +165,6 @@ function waitForElement(selector, timeout = 5000) {
   });
 }
 
-// Add this function to main.js
 function addCustomAlert() {
   const alertHTML = `
     <div class="custom-alert" id="siteAlert">
@@ -163,7 +189,6 @@ function addCustomAlert() {
   }, 5000);
 }
 
-// Function to update cart icon with item count
 function updateCartIcon() {
   const cartCount = getCartCount();
   const cartIcon = document.querySelector(".cart");
@@ -183,68 +208,62 @@ function updateCartIcon() {
   }
 }
 
-// Function to fix all internal links
+// FIXED: Universal link fixing for all environments
 function fixInternalLinks() {
-  const basePath = getBasePath();
+  console.log('🔗 Fixing internal links for all environments...');
   
-  console.log('🔗 Fixing internal links with basePath:', basePath);
-  
-  // Fix home page links
-  const homeLinks = document.querySelectorAll('a[href="../index.html"], a[href="/src/index.html"], a[href="/"], a[href="index.html"]');
-  homeLinks.forEach(link => {
-    const newHref = basePath;
-    if (link.href !== newHref) {
-      console.log('🔗 Fixing home link:', link.href, '→', newHref);
-      link.href = newHref;
+  const allLinks = document.querySelectorAll('a[href]');
+  allLinks.forEach(link => {
+    const originalHref = link.getAttribute('href');
+    
+    // Skip external links
+    if (originalHref.startsWith('http') || originalHref.startsWith('#')) {
+      return;
     }
-  });
-  
-  // Fix cart links - handle both src and docs environments
-  const cartLinks = document.querySelectorAll('a[href="../cart/index.html"], a[href="/cart/index.html"], a[href="cart/index.html"], a[href="/src/cart/index.html"]');
-  cartLinks.forEach(link => {
-    const newHref = `${basePath}cart/`;
-    if (link.href !== newHref) {
-      console.log('🔗 Fixing cart link:', link.href, '→', newHref);
-      link.href = newHref;
+    
+    let newHref = originalHref;
+    
+    // Fix cart links
+    if (originalHref.includes('cart')) {
+      newHref = getPagePath('cart');
+      console.log('🔗 Fixed cart link:', originalHref, '→', newHref);
     }
-  });
-  
-  // Fix checkout links
-  const checkoutLinks = document.querySelectorAll('a[href="../checkout/index.html"], a[href="/checkout/index.html"], a[href="checkout/index.html"], a[href="/src/checkout/index.html"]');
-  checkoutLinks.forEach(link => {
-    const newHref = `${basePath}checkout/`;
-    if (link.href !== newHref) {
-      console.log('🔗 Fixing checkout link:', link.href, '→', newHref);
-      link.href = newHref;
+    // Fix checkout links
+    else if (originalHref.includes('checkout')) {
+      newHref = getPagePath('checkout');
+      console.log('🔗 Fixed checkout link:', originalHref, '→', newHref);
     }
-  });
-  
-  // Fix product listing links
-  const productListingLinks = document.querySelectorAll('a[href="../product_listing/index.html"], a[href="/product_listing/index.html"], a[href="product_listing/index.html"], a[href="/src/product_listing/index.html"]');
-  productListingLinks.forEach(link => {
-    const newHref = `${basePath}product_listing/`;
-    if (link.href !== newHref) {
-      console.log('🔗 Fixing product listing link:', link.href, '→', newHref);
-      link.href = newHref;
+    // Fix product listing links
+    else if (originalHref.includes('product_listing')) {
+      const urlParams = new URLSearchParams(originalHref.split('?')[1] || '');
+      const category = urlParams.get('category') || 'tents';
+      newHref = `${getPagePath('product_listing')}?category=${category}`;
+      console.log('🔗 Fixed product listing link:', originalHref, '→', newHref);
     }
-  });
-  
-  // Fix product page links - only fix if needed
-  const productLinks = document.querySelectorAll('a[href*="product_pages"]');
-  productLinks.forEach(link => {
-    // Only fix if it's a relative path that needs updating
-    if (link.href.includes('/src/') || link.href.includes('../')) {
-      const productId = link.href.split('product=')[1];
-      if (productId) {
-        const newHref = `${basePath}product_pages/?product=${productId}`;
-        console.log('🔗 Fixing product link:', link.href, '→', newHref);
-        link.href = newHref;
+    // Fix product pages links
+    else if (originalHref.includes('product_pages')) {
+      const urlParams = new URLSearchParams(originalHref.split('?')[1] || '');
+      const product = urlParams.get('product');
+      if (product) {
+        newHref = `${getPagePath('product_pages')}?product=${product}`;
+        console.log('🔗 Fixed product page link:', originalHref, '→', newHref);
       }
+    }
+    // Fix home links
+    else if (originalHref === '../index.html' || originalHref === '/index.html' || 
+             originalHref === 'index.html' || originalHref === '/' ||
+             originalHref === '../' || originalHref === './index.html') {
+      newHref = getBasePath();
+      console.log('🔗 Fixed home link:', originalHref, '→', newHref);
+    }
+    
+    // Only update if changed
+    if (newHref !== originalHref) {
+      link.href = newHref;
     }
   });
 }
 
-// Add category links to home page
 function addCategoryLinks() {
   if (!window.location.pathname.includes('index.html') && 
       !window.location.pathname.endsWith('/') && 
@@ -253,24 +272,35 @@ function addCategoryLinks() {
   }
 
   const basePath = getBasePath();
+  
+  // Get correct image paths for each environment
+  let imageBasePath = basePath;
+  if (window.location.hostname === 'oseimacdonald.github.io') {
+    imageBasePath = './';
+  } else if (window.location.pathname.includes('/docs/')) {
+    imageBasePath = './';
+  } else if (window.location.pathname.includes('/src/')) {
+    imageBasePath = './';
+  }
+  
   const categoriesHTML = `
     <section class="categories">
       <h2>Shop by Category</h2>
       <div class="category-grid">
-        <a href="${basePath}product_listing/?category=tents" class="category-card">
-          <img src="${basePath}public/images/noun_Tent_2517.svg" alt="Tents">
+        <a href="${getPagePath('product_listing')}?category=tents" class="category-card">
+          <img src="${imageBasePath}public/images/noun_Tent_2517.svg" alt="Tents">
           <h3>Tents</h3>
         </a>
-        <a href="${basePath}product_listing/?category=backpacks" class="category-card">
-          <img src="${basePath}public/images/noun_Backpack_65884.svg" alt="Backpacks">
+        <a href="${getPagePath('product_listing')}?category=backpacks" class="category-card">
+          <img src="${imageBasePath}public/images/noun_Backpack_65884.svg" alt="Backpacks">
           <h3>Backpacks</h3>
         </a>
-        <a href="${basePath}product_listing/?category=sleeping-bags" class="category-card">
-          <img src="${basePath}public/images/noun_Backpack_2389275.svg" alt="Sleeping Bags">
+        <a href="${getPagePath('product_listing')}?category=sleeping-bags" class="category-card">
+          <img src="${imageBasePath}public/images/noun_Backpack_2389275.svg" alt="Sleeping Bags">
           <h3>Sleeping Bags</h3>
         </a>
-        <a href="${basePath}product_listing/?category=hammocks" class="category-card">
-          <img src="${basePath}public/images/noun_Tent_2517.svg" alt="Hammocks">
+        <a href="${getPagePath('product_listing')}?category=hammocks" class="category-card">
+          <img src="${imageBasePath}public/images/noun_Tent_2517.svg" alt="Hammocks">
           <h3>Hammocks</h3>
         </a>
       </div>
@@ -290,7 +320,8 @@ function addCategoryLinks() {
 
 // Main initialization
 document.addEventListener("DOMContentLoaded", async function () {
-  console.log('🚀 main.js: Starting initialization on:', window.location.pathname);
+  console.log('🚀 main.js: Starting initialization');
+  console.log('📍 Current environment:', window.location.hostname + window.location.pathname);
   
   // Check if header/footer already loaded to prevent double loading
   if (headerFooterLoaded) {
@@ -319,11 +350,34 @@ document.addEventListener("DOMContentLoaded", async function () {
   console.log('✅ main.js: Initialization complete');
 });
 
-// Debug cart links after page loads
+// Newsletter safety check
 setTimeout(() => {
-  console.log('🛒 Checking cart links after load...');
-  const cartLinks = document.querySelectorAll('a[href*="cart"]');
-  cartLinks.forEach(link => {
-    console.log('🛒 Cart link found:', link.href);
+  console.log('📧 Newsletter safety check running...');
+  const newsletterBtn = document.getElementById('newsletterBtn');
+  const newsletterModal = document.getElementById('newsletterModal');
+  
+  console.log('📧 Newsletter button found:', !!newsletterBtn);
+  console.log('📧 Newsletter modal found:', !!newsletterModal);
+  
+  if (newsletterBtn && !newsletterBtn._newsletterInitialized) {
+    newsletterBtn._newsletterInitialized = true;
+    
+    newsletterBtn.addEventListener('click', function() {
+      console.log('📧 Newsletter button clicked - manual fallback');
+      const modal = document.getElementById('newsletterModal');
+      if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  }
+}, 1500);
+
+// Debug links after page loads
+setTimeout(() => {
+  console.log('🔗 Final link check:');
+  const importantLinks = document.querySelectorAll('a[href*="cart"], a[href*="checkout"], a[href*="product_listing"], a[href*="product_pages"]');
+  importantLinks.forEach(link => {
+    console.log('🔗', link.href);
   });
 }, 1000);
