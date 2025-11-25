@@ -1,9 +1,12 @@
 import { loadHeaderFooter, getLocalStorage, removeFromCart, setLocalStorage, updateCartIcon } from "./utils.mjs";
+import Newsletter from './newsletter.mjs';
 
 // Load dynamic header and footer
 loadHeaderFooter().then(() => {
   // Update cart icon after header is loaded
   updateCartIcon();
+  // Initialize cart when page loads
+  renderCartContents();
 });
 
 function renderCartContents() {
@@ -201,7 +204,14 @@ function updateQuantity(productId, change) {
     setLocalStorage("so-cart", cart);
     renderCartContents(); // Re-render the cart (includes totals)
   }
-}
 
-// Initialize cart when page loads
-renderCartContents();
+
+// Initialize newsletter after header/footer is loaded
+loadHeaderFooter().then(() => {
+  updateCartIcon();
+  renderCartContents();
+  
+  // Initialize newsletter
+  new Newsletter();
+});
+}
