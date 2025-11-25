@@ -25,6 +25,9 @@ async function buildForProduction() {
   // Fix ProductDetails.mjs specifically - WITH CSS PATH FIX
   await fixProductDetails();
   
+  // Fix product_pages/index.html specifically - CRITICAL FIX
+  await fixProductPagesHTML();
+  
   // Fix checkout page to load main.js
   await fixCheckoutPageScript();
   
@@ -440,27 +443,33 @@ async function fixProductPagesHTML() {
     
     console.log('🔧 Fixing product_pages/index.html inline script');
     
-    // Fix the hardcoded paths in the inline script
+    // COMPLETE REPLACEMENT of the inline script - more reliable approach
+    const correctedScript = `
+    <script type="module">
+      // Determine base path for GitHub Pages vs local development
+      const isGitHubPages = window.location.hostname.includes('github.io');
+      const currentPath = window.location.pathname;
+      
+      let basePath = '../';
+      
+      // Load CSS
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = \`\${basePath}css/style.css\`;
+      document.head.appendChild(link);
+      
+      // Import your existing product module directly
+      import('\${basePath}js/product.js');
+    </script>`;
+
+    // Replace the entire script section
     content = content.replace(
-      /const isGitHubPages = window\.location\.hostname\.includes\('github\.io'\);\s*const basePath = isGitHubPages \? '\/Sleep-Outside\/src' : '\.\.';/g,
-      `const isGitHubPages = window.location.hostname.includes('github.io');
-      const basePath = isGitHubPages ? '../' : '../';`
-    );
-    
-    // Also fix the CSS path in the inline script
-    content = content.replace(
-      /link\.href = `\$\{basePath\}\/css\/style\.css`;/g,
-      'link.href = `${basePath}css/style.css`;'
-    );
-    
-    // Fix the JavaScript import path
-    content = content.replace(
-      /import\('\.\.\/js\/product\.js'\);/g,
-      `import('${basePath}js/product.js');`
+      /<script type="module">[\s\S]*?<\/script>/,
+      correctedScript
     );
 
     await fs.writeFile(productPagesHTML, content);
-    console.log('✅ Fixed product_pages/index.html inline script');
+    console.log('✅ Fixed product_pages/index.html inline script - COMPLETE REPLACEMENT');
   } else {
     console.log('❌ product_pages/index.html not found at:', productPagesHTML);
   }
@@ -488,43 +497,6 @@ async function fixCheckoutPageScript() {
     await fs.writeFile(checkoutHTML, content);
     console.log('✅ Fixed checkout page script reference');
   }
-}
-
-// Update the main function to include the new fix
-async function buildForProduction() {
-  console.log('🚀 Building for production...');
-  
-  // Ensure docs directory exists and is clean
-  await fs.emptyDir('docs');
-  
-  // Copy all src files to docs
-  await fs.copy('src', 'docs');
-  
-  // Update ALL HTML files for production - WITH BETTER PATH FIXING
-  await updateAllHTMLFiles();
-  
-  // Fix ALL JavaScript files with consistent basePath
-  await fixAllJavaScriptFiles();
-  
-  // Fix utils.mjs header/footer template loading specifically
-  await fixUtilsTemplatePaths();
-  
-  // Fix product links in ProductList.mjs specifically
-  await fixProductLinks();
-  
-  // Fix ProductDetails.mjs specifically - WITH CSS PATH FIX
-  await fixProductDetails();
-  
-  // Fix product_pages/index.html specifically - CRITICAL FIX
-  await fixProductPagesHTML();
-  
-  // Fix checkout page to load main.js
-  await fixCheckoutPageScript();
-  
-  console.log('✅ Production build complete!');
-  console.log('📁 Files are in the docs/ folder');
-  console.log('🌐 Test locally: npx serve docs/');
-  console.log('🚀 Then commit and push to GitHub');
 }
 
 buildForProduction().catch(console.error);
