@@ -89,6 +89,7 @@ export async function loadTemplate(path) {
 }
 
 // UNIVERSAL PATH SOLUTION - WORKS FOR BOTH LOCAL AND PRODUCTION
+// UNIVERSAL PATH SOLUTION - WORKS FOR BOTH LOCAL AND PRODUCTION
 export async function loadHeaderFooter() {
   try {
     const currentPath = window.location.pathname;
@@ -98,21 +99,25 @@ export async function loadHeaderFooter() {
     let basePath = '';
     
     if (isGitHubPages) {
-  // Production - GitHub Pages (docs folder is root)
-  basePath = './';
+      // Production - GitHub Pages
+      if (currentPath.includes('/product_listing/') || currentPath.includes('/cart/') || currentPath.includes('/checkout/') || currentPath.includes('/product_pages/')) {
+        basePath = '../';
+      } else {
+        basePath = './';
+      }
     } else {
       // Local development - use relative paths
-      if (currentPath.includes('/cart/') || currentPath.includes('/checkout/') || currentPath.includes('/product_pages/') || currentPath.includes('/product_listing/')) {
-        basePath = '..'; // From subdirectories go up to src/
+      if (currentPath.includes('/product_listing/') || currentPath.includes('/cart/') || currentPath.includes('/checkout/') || currentPath.includes('/product_pages/')) {
+        basePath = '../';
       } else {
-        basePath = '.'; // From src/ root
+        basePath = './';
       }
     }
     
     console.log('Loading templates with basePath:', basePath);
     
     // Load header
-    const headerPath = `${basePath}/public/partials/header.html`;
+    const headerPath = `${basePath}public/partials/header.html`;
     const headerTemplate = await loadTemplate(headerPath);
     const headerElement = document.getElementById('main-header');
     if (headerElement) {
@@ -122,7 +127,7 @@ export async function loadHeaderFooter() {
     }
     
     // Load footer
-    const footerPath = `${basePath}/public/partials/footer.html`;
+    const footerPath = `${basePath}public/partials/footer.html`;
     const footerTemplate = await loadTemplate(footerPath);
     const footerElement = document.getElementById('main-footer');
     if (footerElement) {

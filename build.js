@@ -16,6 +16,9 @@ async function buildForProduction() {
   // Fix ALL JavaScript files with consistent basePath
   await fixAllJavaScriptFiles();
   
+  // Fix utils.mjs header/footer template loading specifically
+  await fixUtilsTemplatePaths();
+  
   // Fix product links in ProductList.mjs specifically
   await fixProductLinks();
   
@@ -202,17 +205,80 @@ function getBasePath() {
   content = content.replace(/['"]\/Sleep-Outside\/src\/['"]/g, `'./'`);
   content = content.replace(/['"]\/Sleep-Outside\/['"]/g, `'./'`);
   
-  // Fix template paths in utils.mjs specifically
-  if (filePath.includes('utils.mjs')) {
-    content = content.replace(
-      /if \(isGitHubPages\) \{\s*\/\/ Production - GitHub Pages\s*basePath = '\/Sleep-Outside\/src';/g,
-      `if (isGitHubPages) {
-  // Production - GitHub Pages (docs folder is root)
-  basePath = './';`
-    );
-  }
-
   await fs.writeFile(filePath, content);
+}
+
+async function fixUtilsTemplatePaths() {
+  const utilsPath = 'docs/js/utils.mjs';
+  
+  if (await fs.pathExists(utilsPath)) {
+    let content = await fs.readFile(utilsPath, 'utf8');
+    
+    console.log('🔧 Fixing template paths in utils.mjs');
+    
+    // Replace the entire loadHeaderFooter function with a corrected version
+    const correctedLoadHeaderFooter = `// UNIVERSAL PATH SOLUTION - WORKS FOR BOTH LOCAL AND PRODUCTION
+export async function loadHeaderFooter() {
+  try {
+    const currentPath = window.location.pathname;
+    const isGitHubPages = window.location.hostname.includes('github.io');
+    
+    // Determine correct base path
+    let basePath = '';
+    
+    if (isGitHubPages) {
+      // Production - GitHub Pages
+      if (currentPath.includes('/product_listing/') || currentPath.includes('/cart/') || currentPath.includes('/checkout/') || currentPath.includes('/product_pages/')) {
+        basePath = '../';
+      } else {
+        basePath = './';
+      }
+    } else {
+      // Local development - use relative paths
+      if (currentPath.includes('/product_listing/') || currentPath.includes('/cart/') || currentPath.includes('/checkout/') || currentPath.includes('/product_pages/')) {
+        basePath = '../';
+      } else {
+        basePath = './';
+      }
+    }
+    
+    console.log('Loading templates with basePath:', basePath);
+    
+    // Load header
+    const headerPath = \`\${basePath}public/partials/header.html\`;
+    const headerTemplate = await loadTemplate(headerPath);
+    const headerElement = document.getElementById('main-header');
+    if (headerElement) {
+      await renderWithTemplate(headerTemplate, headerElement);
+      // Fix any paths in the loaded header
+      fixHeaderPaths(basePath);
+    }
+    
+    // Load footer
+    const footerPath = \`\${basePath}public/partials/footer.html\`;
+    const footerTemplate = await loadTemplate(footerPath);
+    const footerElement = document.getElementById('main-footer');
+    if (footerElement) {
+      await renderWithTemplate(footerTemplate, footerElement);
+    }
+    
+  } catch (error) {
+    console.error('Error loading header/footer:', error);
+    // Create reliable fallback that works everywhere
+    createUniversalFallback();
+  }
+}`;
+
+    // Replace the loadHeaderFooter function
+    const loadHeaderFooterRegex = /export async function loadHeaderFooter\(\)[\s\S]*?^\}/m;
+    if (content.match(loadHeaderFooterRegex)) {
+      content = content.replace(loadHeaderFooterRegex, correctedLoadHeaderFooter);
+      console.log('✅ Fixed loadHeaderFooter function in utils.mjs');
+    }
+
+    await fs.writeFile(utilsPath, content);
+    console.log('✅ Fixed template paths in utils.mjs');
+  }
 }
 
 async function fixProductLinks() {
