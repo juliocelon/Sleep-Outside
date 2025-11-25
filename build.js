@@ -22,7 +22,7 @@ async function buildForProduction() {
   // Fix product links in ProductList.mjs specifically
   await fixProductLinks();
   
-  // Fix ProductDetails.mjs specifically
+  // Fix ProductDetails.mjs specifically - WITH CSS PATH FIX
   await fixProductDetails();
   
   // Fix checkout page to load main.js
@@ -419,8 +419,14 @@ function getBasePath() {
       console.log('✅ Replaced getBasePath function in ProductDetails.mjs');
     }
 
+    // FIX THE CSS PATH - remove the extra slash
+    content = content.replace(
+      /link\.href = `\$\{basePath\}\/css\/style\.css`;/g,
+      'link.href = `${basePath}css/style.css`;'
+    );
+
     await fs.writeFile(productDetailsPath, content);
-    console.log('✅ Fixed ProductDetails.mjs');
+    console.log('✅ Fixed ProductDetails.mjs - removed extra slash from CSS path');
   } else {
     console.log('❌ ProductDetails.mjs not found at:', productDetailsPath);
   }
