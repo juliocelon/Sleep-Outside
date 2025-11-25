@@ -22,6 +22,9 @@ async function buildForProduction() {
   // Fix product links in ProductList.mjs specifically
   await fixProductLinks();
   
+  // Fix ProductDetails.mjs specifically
+  await fixProductDetails();
+  
   // Fix checkout page to load main.js
   await fixCheckoutPageScript();
   
@@ -100,26 +103,31 @@ function updateHTMLPaths(content, basePath, filePath) {
   
   // For regular HTML files
   return content
-    // Remove any GitHub Pages src references
+    // Remove any GitHub Pages src references - MORE COMPREHENSIVE
     .replace(/href="\/Sleep-Outside\/src\//g, `href="${basePath}`)
     .replace(/src="\/Sleep-Outside\/src\//g, `src="${basePath}`)
     .replace(/href="\/docs\//g, `href="${basePath}`)
     .replace(/src="\/docs\//g, `src="${basePath}`)
+    .replace(/href="\/src\//g, `href="${basePath}`)
+    .replace(/src="\/src\//g, `src="${basePath}`)
     
-    // CSS paths
+    // CSS paths - FIX SPECIFICALLY FOR PRODUCT PAGES
     .replace(/href="\.\.\/css\//g, `href="${basePath}css/`)
     .replace(/href="\/css\//g, `href="${basePath}css/`)
     .replace(/href="css\//g, `href="${basePath}css/`)
+    .replace(/href="src\/css\//g, `href="${basePath}css/`)
     
     // JS paths
     .replace(/src="\.\.\/js\//g, `src="${basePath}js/`)
     .replace(/src="\/js\//g, `src="${basePath}js/`)
     .replace(/src="js\//g, `src="${basePath}js/`)
+    .replace(/src="src\/js\//g, `src="${basePath}js/`)
     
     // Image paths
     .replace(/src="\.\.\/public\//g, `src="${basePath}public/`)
     .replace(/src="\/public\//g, `src="${basePath}public/`)
     .replace(/src="public\//g, `src="${basePath}public/`)
+    .replace(/src="src\/public\//g, `src="${basePath}public/`)
     
     // Link paths
     .replace(/href="\.\.\/index\.html/g, `href="${basePath}index.html`)
@@ -158,8 +166,8 @@ function getBasePath() {
   // GitHub Pages detection - EXACT match for your repository
   if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
     console.log('🔧 Detected GitHub Pages - using relative paths');
-    // On GitHub Pages, when in product_listing folder, we need to go up to root
-    if (pathname.includes('/product_listing/')) {
+    // On GitHub Pages, when in subfolders, we need to go up to root
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
       return '../';
     }
     return './';
@@ -169,7 +177,7 @@ function getBasePath() {
   if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
       (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
     console.log('🔧 Detected local docs folder - using relative paths');
-    if (pathname.includes('/product_listing/')) {
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
       return '../';
     }
     return './';
@@ -178,7 +186,7 @@ function getBasePath() {
   // Local development from src folder
   if (hostname === '127.0.0.1' || hostname === 'localhost') {
     console.log('🔧 Detected local development - using relative paths');
-    if (pathname.includes('/product_listing/')) {
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
       return '../';
     }
     return '../';
@@ -300,8 +308,8 @@ function getBasePath() {
   // GitHub Pages detection - EXACT match for your repository
   if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
     console.log('🔧 Detected GitHub Pages - using relative paths');
-    // On GitHub Pages, when in product_listing folder, we need to go up to root
-    if (pathname.includes('/product_listing/')) {
+    // On GitHub Pages, when in subfolders, we need to go up to root
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
       return '../';
     }
     return './';
@@ -311,7 +319,7 @@ function getBasePath() {
   if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
       (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
     console.log('🔧 Detected local docs folder - using relative paths');
-    if (pathname.includes('/product_listing/')) {
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
       return '../';
     }
     return './';
@@ -320,7 +328,7 @@ function getBasePath() {
   // Local development from src folder
   if (hostname === '127.0.0.1' || hostname === 'localhost') {
     console.log('🔧 Detected local development - using relative paths');
-    if (pathname.includes('/product_listing/')) {
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
       return '../';
     }
     return '../';
@@ -345,6 +353,73 @@ function getBasePath() {
     console.log('✅ Fixed product links in ProductList.mjs');
   } else {
     console.log('❌ ProductList.mjs not found at:', productListPath);
+  }
+}
+
+async function fixProductDetails() {
+  const productDetailsPath = 'docs/js/ProductDetails.mjs';
+  
+  if (await fs.pathExists(productDetailsPath)) {
+    let content = await fs.readFile(productDetailsPath, 'utf8');
+    
+    console.log('🔧 Fixing ProductDetails.mjs');
+    
+    // Replace the entire getBasePath function with the corrected version
+    const correctedGetBasePath = `// UNIVERSAL basePath detection - works in ALL environments
+function getBasePath() {
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
+  
+  console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
+  
+  // GitHub Pages detection - EXACT match for your repository
+  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
+    console.log('🔧 Detected GitHub Pages - using relative paths');
+    // On GitHub Pages, when in subfolders, we need to go up to root
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
+      return '../';
+    }
+    return './';
+  }
+  
+  // Local development from docs folder
+  if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
+      (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
+    console.log('🔧 Detected local docs folder - using relative paths');
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
+      return '../';
+    }
+    return './';
+  }
+  
+  // Local development from src folder
+  if (hostname === '127.0.0.1' || hostname === 'localhost') {
+    console.log('🔧 Detected local development - using relative paths');
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
+      return '../';
+    }
+    return '../';
+  }
+  
+  // Fallback - handle subdirectories properly
+  console.log('🔧 Using fallback base path detection');
+  if (pathname.includes('/product_listing/') || pathname.includes('/cart/') || pathname.includes('/checkout/') || pathname.includes('/product_pages/')) {
+    return '../';
+  }
+  return './';
+}`;
+
+    // Replace getBasePath function
+    const basePathRegex = /function\s+getBasePath\s*\(\s*\)\s*\{[\s\S]*?\n\}/;
+    if (content.match(basePathRegex)) {
+      content = content.replace(basePathRegex, correctedGetBasePath);
+      console.log('✅ Replaced getBasePath function in ProductDetails.mjs');
+    }
+
+    await fs.writeFile(productDetailsPath, content);
+    console.log('✅ Fixed ProductDetails.mjs');
+  } else {
+    console.log('❌ ProductDetails.mjs not found at:', productDetailsPath);
   }
 }
 

@@ -1,6 +1,7 @@
 import { setLocalStorage, getLocalStorage, getCartCount } from './utils.mjs';
 
 // UNIVERSAL basePath detection - works in ALL environments
+// UNIVERSAL basePath detection - works in ALL environments
 function getBasePath() {
   const hostname = window.location.hostname;
   const pathname = window.location.pathname;
@@ -8,10 +9,10 @@ function getBasePath() {
   console.log('🔧 Debug - hostname:', hostname, 'pathname:', pathname);
   
   // GitHub Pages detection - EXACT match for your repository
-  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('./')) {
+  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
     console.log('🔧 Detected GitHub Pages - using relative paths');
-    // On GitHub Pages, when in product_listing folder, we need to go up to root
-    if (pathname.includes('/product_listing/')) {
+    // On GitHub Pages, when in subfolders, we need to go up to root
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
       return '../';
     }
     return './';
@@ -21,7 +22,7 @@ function getBasePath() {
   if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
       (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
     console.log('🔧 Detected local docs folder - using relative paths');
-    if (pathname.includes('/product_listing/')) {
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
       return '../';
     }
     return './';
@@ -30,7 +31,7 @@ function getBasePath() {
   // Local development from src folder
   if (hostname === '127.0.0.1' || hostname === 'localhost') {
     console.log('🔧 Detected local development - using relative paths');
-    if (pathname.includes('/product_listing/')) {
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
       return '../';
     }
     return '../';
