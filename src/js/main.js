@@ -3,25 +3,55 @@ import Newsletter from './newsletter.mjs';
 import ExternalServices from './ExternalServices.mjs';
 import ProductList from './ProductList.mjs';
 
-// Function to detect GitHub Pages environment
+// Prevent double loading
+let headerFooterLoaded = false;
+
+// Function to detect environment and return correct base path
 function getBasePath() {
-  if (window.location.hostname.includes('github.io')) {
-    return '/Sleep-Outside/';
+  const hostname = window.location.hostname;
+  const pathname = window.location.pathname;
+  
+  console.log('🔧 Base path detection - hostname:', hostname, 'pathname:', pathname);
+  
+  // GitHub Pages detection
+  if (hostname === 'oseimacdonald.github.io' && pathname.startsWith('/Sleep-Outside/')) {
+    console.log('🔧 Detected GitHub Pages - using relative paths');
+    // On GitHub Pages, when in subfolders, we need to go up to root
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
+      return '../';
+    }
+    return './';
   }
+  
+  // Local development from docs folder (production build)
+  if ((hostname === '127.0.0.1' || hostname === 'localhost') && 
+      (pathname.includes('/docs/') || pathname.endsWith('/docs'))) {
+    console.log('🔧 Detected local docs folder - using relative paths');
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
+      return '../';
+    }
+    return './';
+  }
+  
+  // Local development from src folder
+  if (hostname === '127.0.0.1' || hostname === 'localhost') {
+    console.log('🔧 Detected local src folder - using relative paths');
+    if (pathname.includes('/product_listing/') || pathname.includes('/product_pages/') || pathname.includes('/cart/') || pathname.includes('/checkout/')) {
+      return '../';
+    }
+    return './';
+  }
+  
+  // Fallback
+  console.log('🔧 Using fallback base path detection');
   return './';
 }
 
-// ROBUST FUNCTION: Product listing handler with enhanced debugging
+// Product listing handler
 async function loadProductListing() {
-  // Check if we're on a product listing page
   if (window.location.pathname.includes('/product_listing/')) {
-    console.log('🛍️ main.js: Loading product listing...');
-    
-    // Get category from URL parameter
     const urlParams = new URLSearchParams(window.location.search);
     const category = urlParams.get('category') || 'tents';
-    
-    console.log('🛍️ main.js: Loading products for category:', category);
     
     // Update page title
     const titleElement = document.getElementById('category-title');
@@ -29,65 +59,50 @@ async function loadProductListing() {
       titleElement.textContent = category.charAt(0).toUpperCase() + category.slice(1);
     }
     
-    // Enhanced debugging - check what's in the DOM
-    console.log('🔍 DOM Debug - Main element:', document.querySelector('main'));
-    console.log('🔍 DOM Debug - Products section:', document.querySelector('.products'));
-    console.log('🔍 DOM Debug - All sections in main:', document.querySelectorAll('main section'));
-    
-    // Wait for product list element to be available with more debugging
-    const listElement = await waitForElement('.product-list', 3000);
+    // Wait for or create product list element
+    const listElement = await waitForElement('.product-list', 2000);
     
     if (listElement) {
-      console.log('🛍️ Product list element found, loading products...');
       const dataSource = new ExternalServices(category);
       const productList = new ProductList(category, dataSource, listElement);
       await productList.init();
-      console.log('🛍️ main.js: Products loaded successfully');
     } else {
-      console.error('🛍️ main.js: Product list element not found after waiting');
-      // Try to create the element if it doesn't exist
       createProductListElement(category);
     }
   }
 }
 
+// Product details page handler
+async function loadProductDetails() {
+  if (window.location.pathname.includes('/product_pages/')) {
+    console.log('🔍 main.js: On product details page - newsletter should work');
+  }
+}
+
 // Function to create product list element if it doesn't exist
 function createProductListElement(category) {
-  console.log('🔧 Attempting to create product list element...');
-  
   const mainElement = document.querySelector('main');
-  if (!mainElement) {
-    console.error('🔧 Main element not found');
-    return;
-  }
+  if (!mainElement) return;
   
-  // Check if products section exists
   let productsSection = document.querySelector('.products');
   if (!productsSection) {
-    console.log('🔧 Creating products section...');
     productsSection = document.createElement('section');
     productsSection.className = 'products';
     
-    // Create title
     const title = document.createElement('h2');
     title.id = 'category-title';
     title.textContent = category.charAt(0).toUpperCase() + category.slice(1);
     productsSection.appendChild(title);
     
-    // Create product list
     const productList = document.createElement('ul');
     productList.className = 'product-list';
     productsSection.appendChild(productList);
     
-    // Add to main
     mainElement.appendChild(productsSection);
-    console.log('🔧 Products section created successfully');
   }
   
-  // Now try to load products
   const listElement = document.querySelector('.product-list');
   if (listElement) {
-    console.log('🛍️ Product list created, loading products...');
     const dataSource = new ExternalServices(category);
     const productList = new ProductList(category, dataSource, listElement);
     productList.init();
@@ -99,17 +114,13 @@ function waitForElement(selector, timeout = 5000) {
   return new Promise((resolve) => {
     const element = document.querySelector(selector);
     if (element) {
-      console.log(`🔍 Element ${selector} found immediately`);
       resolve(element);
       return;
     }
 
-    console.log(`🔍 Waiting for element: ${selector}`);
-    
-    const observer = new MutationObserver((mutations) => {
+    const observer = new MutationObserver(() => {
       const element = document.querySelector(selector);
       if (element) {
-        console.log(`🔍 Element ${selector} found via MutationObserver`);
         observer.disconnect();
         resolve(element);
       }
@@ -122,14 +133,11 @@ function waitForElement(selector, timeout = 5000) {
 
     setTimeout(() => {
       observer.disconnect();
-      const element = document.querySelector(selector);
-      console.log(`🔍 Element ${selector} after timeout:`, element);
-      resolve(element);
+      resolve(document.querySelector(selector));
     }, timeout);
   });
 }
 
-// ... REST OF YOUR FUNCTIONS REMAIN THE SAME (addCustomAlert, updateCartIcon, etc.)
 // Add this function to main.js
 function addCustomAlert() {
   const alertHTML = `
@@ -143,12 +151,10 @@ function addCustomAlert() {
   
   document.body.insertAdjacentHTML('afterbegin', alertHTML);
   
-  // Add close functionality
   document.getElementById('closeAlert').addEventListener('click', function() {
     document.getElementById('siteAlert').style.display = 'none';
   });
   
-  // Optional: Auto-hide after 5 seconds
   setTimeout(() => {
     const alert = document.getElementById('siteAlert');
     if (alert) {
@@ -162,10 +168,7 @@ function updateCartIcon() {
   const cartCount = getCartCount();
   const cartIcon = document.querySelector(".cart");
 
-  if (!cartIcon) {
-    console.log('🛒 Cart icon not found');
-    return;
-  }
+  if (!cartIcon) return;
 
   const existingBadge = cartIcon.querySelector(".cart-badge");
   if (existingBadge) {
@@ -184,31 +187,65 @@ function updateCartIcon() {
 function fixInternalLinks() {
   const basePath = getBasePath();
   
+  console.log('🔗 Fixing internal links with basePath:', basePath);
+  
   // Fix home page links
-  const homeLinks = document.querySelectorAll('a[href="../index.html"], a[href="/src/index.html"], a[href="/"]');
+  const homeLinks = document.querySelectorAll('a[href="../index.html"], a[href="/src/index.html"], a[href="/"], a[href="index.html"]');
   homeLinks.forEach(link => {
-    link.href = basePath;
+    const newHref = basePath;
+    if (link.href !== newHref) {
+      console.log('🔗 Fixing home link:', link.href, '→', newHref);
+      link.href = newHref;
+    }
   });
   
-  // Fix cart links
-  const cartLinks = document.querySelectorAll('a[href="../cart/index.html"], a[href="/cart/index.html"]');
+  // Fix cart links - handle both src and docs environments
+  const cartLinks = document.querySelectorAll('a[href="../cart/index.html"], a[href="/cart/index.html"], a[href="cart/index.html"], a[href="/src/cart/index.html"]');
   cartLinks.forEach(link => {
-    link.href = `${basePath}cart/`;
+    const newHref = `${basePath}cart/`;
+    if (link.href !== newHref) {
+      console.log('🔗 Fixing cart link:', link.href, '→', newHref);
+      link.href = newHref;
+    }
   });
   
-  // Fix product page links
+  // Fix checkout links
+  const checkoutLinks = document.querySelectorAll('a[href="../checkout/index.html"], a[href="/checkout/index.html"], a[href="checkout/index.html"], a[href="/src/checkout/index.html"]');
+  checkoutLinks.forEach(link => {
+    const newHref = `${basePath}checkout/`;
+    if (link.href !== newHref) {
+      console.log('🔗 Fixing checkout link:', link.href, '→', newHref);
+      link.href = newHref;
+    }
+  });
+  
+  // Fix product listing links
+  const productListingLinks = document.querySelectorAll('a[href="../product_listing/index.html"], a[href="/product_listing/index.html"], a[href="product_listing/index.html"], a[href="/src/product_listing/index.html"]');
+  productListingLinks.forEach(link => {
+    const newHref = `${basePath}product_listing/`;
+    if (link.href !== newHref) {
+      console.log('🔗 Fixing product listing link:', link.href, '→', newHref);
+      link.href = newHref;
+    }
+  });
+  
+  // Fix product page links - only fix if needed
   const productLinks = document.querySelectorAll('a[href*="product_pages"]');
   productLinks.forEach(link => {
-    const productId = link.href.split('product=')[1];
-    if (productId) {
-      link.href = `${basePath}product_pages/?product=${productId}`;
+    // Only fix if it's a relative path that needs updating
+    if (link.href.includes('/src/') || link.href.includes('../')) {
+      const productId = link.href.split('product=')[1];
+      if (productId) {
+        const newHref = `${basePath}product_pages/?product=${productId}`;
+        console.log('🔗 Fixing product link:', link.href, '→', newHref);
+        link.href = newHref;
+      }
     }
   });
 }
 
 // Add category links to home page
 function addCategoryLinks() {
-  // Only run on home page
   if (!window.location.pathname.includes('index.html') && 
       !window.location.pathname.endsWith('/') && 
       !window.location.pathname.endsWith('/docs/')) {
@@ -240,63 +277,53 @@ function addCategoryLinks() {
     </section>
   `;
   
-  // Remove the old products section and replace with categories
   const productsSection = document.querySelector('.products');
   if (productsSection) {
-    productsSection.remove(); // Remove the old static product listing
+    productsSection.remove();
   }
   
-  // Add categories after the hero section
   const heroSection = document.querySelector('.hero');
   if (heroSection) {
     heroSection.insertAdjacentHTML('afterend', categoriesHTML);
   }
 }
 
-// SINGLE DOMContentLoaded event listener
+// Main initialization
 document.addEventListener("DOMContentLoaded", async function () {
-  console.log('🚀 main.js: Starting initialization...');
+  console.log('🚀 main.js: Starting initialization on:', window.location.pathname);
   
-  try {
-    // Load dynamic header and footer ONCE - AWAIT THIS
-    console.log('📄 Loading header/footer...');
-    await loadHeaderFooter();
-    console.log('✅ Header/footer loaded');
-    
-    // Add customizable alert
-    console.log('🚨 Adding custom alert...');
-    addCustomAlert();
-    
-    // Add category links to home page
-    console.log('🏷️ Adding category links...');
-    addCategoryLinks();
-
-    // Fix existing links and update cart
-    console.log('🔗 Fixing internal links...');
-    fixInternalLinks();
-    updateCartIcon();
-
-    // Initialize newsletter
-    console.log('📧 Initializing newsletter...');
-    new Newsletter();
-
-    // ADD THIS: Load products if on product listing page - AFTER header/footer
-    console.log('🛍️ Checking for product listing...');
-    await loadProductListing();
-    
-    console.log('✅ main.js: Initialization complete');
-  } catch (error) {
-    console.error('❌ main.js: Initialization failed:', error);
+  // Check if header/footer already loaded to prevent double loading
+  if (headerFooterLoaded) {
+    console.log('⏭️ Header/footer already loaded, skipping...');
+    return;
   }
+  
+  console.log('📄 Loading header/footer...');
+  await loadHeaderFooter();
+  headerFooterLoaded = true;
+  console.log('✅ Header/footer loaded');
+  
+  addCustomAlert();
+  addCategoryLinks();
+  
+  console.log('🔗 Fixing internal links...');
+  fixInternalLinks();
+  
+  updateCartIcon();
+  new Newsletter();
+  
+  // Handle different page types
+  await loadProductListing();
+  await loadProductDetails();
+  
+  console.log('✅ main.js: Initialization complete');
 });
 
-// Safety check for newsletter button
+// Debug cart links after page loads
 setTimeout(() => {
-  const newsletterBtn = document.getElementById('newsletterBtn');
-  console.log('📧 Newsletter button check:', newsletterBtn);
-  if (newsletterBtn) {
-    newsletterBtn.addEventListener('click', function() {
-      console.log('📧 Newsletter button clicked - manual test');
-    });
-  }
-}, 2000);
+  console.log('🛒 Checking cart links after load...');
+  const cartLinks = document.querySelectorAll('a[href*="cart"]');
+  cartLinks.forEach(link => {
+    console.log('🛒 Cart link found:', link.href);
+  });
+}, 1000);

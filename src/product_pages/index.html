@@ -5,20 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sleep Outside | Product Details</title>
     
-    <script type="module">
-      // Determine base path
-      const isGitHubPages = window.location.hostname.includes('github.io');
-      const basePath = isGitHubPages ? '/Sleep-Outside/src' : '..';
-      
-      // Load CSS
-      const link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.href = `${basePath}/css/style.css`;
-      document.head.appendChild(link);
-      
-      // Import your existing product module directly
-      import('../js/product.js');
-    </script>
+    <!-- Load CSS -->
+    <link rel="stylesheet" href="../css/style.css" />
+    
+    <!-- main.js will handle header/footer and newsletter -->
+    <script src="../js/main.js" type="module"></script>
+    
+    <!-- product.js will handle product details -->
+    <script src="../js/product.js" type="module"></script>
   </head>
 
   <body>
