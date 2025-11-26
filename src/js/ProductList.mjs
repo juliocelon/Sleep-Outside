@@ -1,66 +1,42 @@
-import { renderListWithTemplate, discountIndicator } from './utils.mjs';
+import { renderListWithTemplate } from "./utils.mjs";
 
-export default class ProductList {
-    //Constructor
-    constructor(category, dataSource, listElement) {
-        this.category = category;
-        this.dataSource = dataSource;
-        this.listElement = listElement;
-    }
-
-    //Methods
-    async init() {
-        //Use dataSource to get the list of products to work with
-        const list = await this.dataSource.getData(this.category);
-
-        //Create product cards
-        this.renderList(list);
-
-
-        //ADD CATEGORY NAME TO TOP PRODUCTS HEADER:
-        //Pull h2 element from product_listing/index.html
-        const topProductHeader = document.querySelector(".top-products-header");
-        //To have the spaces and capitalization correct use if statements for formatting
-        let categoryHeader;
-        //For formatting, use if statements to ensure spaces and capitalizations are correct        
-        if (this.category == 'tents') {
-            categoryHeader = 'Tents';
-        } else if (this.category == 'backpacks') {
-            categoryHeader = 'Backpacks';
-        } else if (this.category == 'sleeping-bags') {
-            categoryHeader = 'Sleeping Bags';
-        } else if (this.category == 'hammocks') {
-            categoryHeader = 'Hammocks';
-        };
-        //Put category back into index.html
-        topProductHeader.insertAdjacentHTML("beforeend", `: ${categoryHeader}`);
-        
-        //Check to see list is working
-        // console.log(list);
-    }
-
-
-    renderList(list) {
-        // //Create an array of product cards for each item in the list
-        // const htmlStrings = list.map(productCardTemplate);
-        // //Join the items in the list together and insert into the listElement (in main we call <ul> from the index.html file as the listElement)
-        // this.listElement.insertAdjacentHTML('afterbegin', htmlStrings.join('')); //join prevents commas between each list item (<li></li>)
-
-        //Render product cards for tents using renderListWithTemplate        
-        renderListWithTemplate(productCardTemplate, this.listElement, list);
-    }
-
+function productCardTemplate(product) {
+  return `<li class="product-card">
+  <a href="/product_pages/index.html?product=${product.Id}">
+  <img
+    src="${product.Images.PrimaryMedium}"
+    alt="Image of ${product.Name}"
+  />
+  <h3 class="card__brand">${product.Brand.Name}</h3>
+  <h2 class="card__name">${product.Name}</h2>
+  <p class="product-card__price">$${product.FinalPrice}</p></a>
+</li>`;
 }
 
-//Global Functions
-function productCardTemplate(product) {
-    return `<li class="product-card">
-          <a href="/product_pages/?product=${product.Id}">
-            <img src="${product.Images.PrimaryMedium}" alt="${product.Name}" />
-            <h3 class="card__brand">${product.Brand.Name}</h3>
-            <h2 class="card__name">${product.NameWithoutBrand}</h2>
-            <p class="product-card__price">$${product.FinalPrice}</p>
-            ${discountIndicator(product)}
-          </a>
-        </li>`
+export default class ProductList {
+  constructor(category, dataSource, listElement) {
+    // We passed in this information to make our class as reusable as possible.
+    // Being able to define these things when we use the class will make it very flexible
+    this.category = category;
+    this.dataSource = dataSource;
+    this.listElement = listElement;
+  }
+  async init() {
+    // our dataSource will return a Promise...so we can use await to resolve it.
+    const list = await this.dataSource.getData(this.category);
+    // render the list
+    this.renderList(list);
+    //set the title to the current category
+    document.querySelector(".title").innerHTML = this.category;
+  }
+  // render after doing the first stretch
+  renderList(list) {
+    renderListWithTemplate(productCardTemplate, this.listElement, list);
+  }
+
+  // render before doing the stretch
+  // renderList(list) {
+  //   const htmlStrings = list.map(productCardTemplate);
+  //   this.listElement.insertAdjacentHTML("afterbegin", htmlStrings.join(""));
+  // }
 }

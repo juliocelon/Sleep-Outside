@@ -1,63 +1,56 @@
-import { getLocalStorage, setLocalStorage, discountIndicatorAmount } from "./utils.mjs";
-
-export default class ProductDetails {
-
-    constructor(productId, dataSource) {
-        this.productId = productId;
-        this.product = {};
-        this.dataSource = dataSource;
-    }
-
-    async init() {
-      
-        this.product = await this.dataSource.findProductById(this.productId);        
-        this.renderProductDetails();
-        document
-            .getElementById('addToCart')
-            .addEventListener('click', this.addProductToCart.bind(this));
-    }
-
-    addProductToCart() {
-        const cartItems = getLocalStorage("so-cart") || [];
-        
-        //Check to see if the item is already in the cart.
-        const existingItem = cartItems.find(item => item.Id === this.product.Id);
-
-        //If the item exists in the cart, increase the quantity
-        if (existingItem) {
-            existingItem.quantity = (existingItem.quantity || 1) + 1; //Use the || 1 in case quantity isn't already in local storage
-        } else {
-            this.product.quantity = 1;
-            cartItems.push(this.product);
-        }
-        
-        //Save cart
-        setLocalStorage("so-cart", cartItems);
-
-        //Refresh the page so the superscript on the cart icon will update
-        location.reload();
-    }
-
-    renderProductDetails() {
-        productDetailsTemplate(this.product);
-    }
-}
+import { setLocalStorage, getLocalStorage, alertMessage } from "./utils.mjs";
 
 function productDetailsTemplate(product) {
-    document.querySelector('h2').textContent = product.Brand.Name;
-    document.querySelector('h3').textContent = product.NameWithoutBrand;
+  return `<section class="product-detail"> <h3>${product.Brand.Name}</h3>
+    <h2 class="divider">${product.NameWithoutBrand}</h2>
+    <img
+      class="divider"
+      src="${product.Images.PrimaryLarge}"
+      alt="${product.NameWithoutBrand}"
+    />
+    <p class="product-card__price">$${product.FinalPrice}</p>
+    <p class="product__color">${product.Colors[0].ColorName}</p>
+    <p class="product__description">
+    ${product.DescriptionHtmlSimple}
+    </p>
+    <div class="product-detail__add">
+      <button id="addToCart" data-id="${product.Id}">Add to Cart</button>
+    </div></section>`;
+}
 
-    const productImage = document.getElementById('productImage');
-    console.log(productImage);
-    productImage.src = product.Images.PrimaryLarge;
-    productImage.alt = product.NameWithoutBrand;
-
-    document.getElementById('productPrice').textContent = `$${product.FinalPrice}`;
-    document.getElementById('productColor').textContent = product.Colors[0].ColorName;
-    document.getElementById('productDesc').innerHTML = product.DescriptionHtmlSimple;
-    document.getElementById('addToCart').dataset.id = product.Id;
-    
-    const productDetails = document.querySelector('.product-detail');
-    productDetails.insertAdjacentHTML('beforeend', discountIndicatorAmount(product));
-}   
-
+export default class ProductDetails {
+  constructor(productId, dataSource) {
+    this.productId = productId;
+    this.product = {};
+    this.dataSource = dataSource;
+  }
+  async init() {
+    // use our datasource to get the details for the current product. findProductById will return a promise! use await or .then() to process it
+    this.product = await this.dataSource.findProductById(this.productId);
+    // once we have the product details we can render out the HTML
+    this.renderProductDetails("main");
+    // once the HTML is rendered we can add a listener to Add to Cart button
+    // Notice the .bind(this). Our callback will not work if we don't include that line. Review the readings from this week on 'this' to understand why.
+    document
+      .getElementById("addToCart")
+      .addEventListener("click", this.addToCart.bind(this));
+  }
+  addToCart() {
+    let cartContents = getLocalStorage("so-cart");
+    //check to see if there was anything there
+    if (!cartContents) {
+      cartContents = [];
+    }
+    // then add the current product to the list
+    cartContents.push(this.product);
+    setLocalStorage("so-cart", cartContents);
+    alertMessage(`${this.product.NameWithoutBrand} added to cart!`);
+  }
+  renderProductDetails(selector) {
+    const element = document.querySelector(selector);
+    element.insertAdjacentHTML(
+      "afterBegin",
+      productDetailsTemplate(this.product)
+    );
+  }
+}
